@@ -64,6 +64,18 @@ in let
     # Backend
     backend = hsPkgs.fri-backend;
 
+    # Protobuf
+    python-grpc = pkgs.python39.withPackages (ps: [ ps.grpcio ]);
+
+    renderSchema = pkgs.writeTextFile {
+      name = "renderSchema.sh";
+      executable = true;
+      text = ''
+        ${hsPkgs.proto3-suite}/bin/compile-proto-file --proto protos/fri.proto --out backend/src/
+        ${python-grpc}/bin/python -m grpc_tools.protoc -Iprotos --python_out=tools/ --grpc_python_out=tools/ fri.proto
+      '';
+    };
+
     # Debug
     devel = hsPkgs.shellFor {
       packages = p: [ p.fri-backend ];
@@ -73,6 +85,7 @@ in let
         hsPkgs.hlint
         hsPkgs.cabal-install
         hsPkgs.haskell-language-server
+        python-grpc
       ];
     };
   };

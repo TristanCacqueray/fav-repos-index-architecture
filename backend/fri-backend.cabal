@@ -16,8 +16,6 @@ common common-options
   if impl(ghc >= 8.4)
     ghc-options:       -Wmissing-export-lists
                        -Wpartial-fields
-  if impl(ghc >= 8.8)
-    ghc-options:       -Wmissing-deriving-strategies
   if impl(ghc >= 8.10)
     ghc-options:       -Wunused-packages
 
@@ -27,8 +25,18 @@ common common-options
 library
   import:              common-options
   build-depends:       base                       < 5
+                     , containers                 < 0.7
+                     , deepseq                    < 1.5
+                     , grpc-haskell               >= 0.1.0
+                     , proto3-suite               >= 0.4.2.0
+                     , proto3-wire                >= 1.2.0
+                     , relude                     > 1.0.0.0
+                     , vector                     < 0.13
   hs-source-dirs:      src
   exposed-modules:     Backend
+                       FRI.Types
+  other-modules:       Protos.Fri
+                     , GRPC.Api
 
 executable fri-backend
   import:              common-options
@@ -37,7 +45,6 @@ executable fri-backend
                      , fri-backend
                      , optparse-generic           < 1.5
                      -- TODO: push grpc to
-                     , grpc-haskell
                      , relude                     > 1.0 && < 1.1
   ghc-options:         -threaded
                        -rtsopts

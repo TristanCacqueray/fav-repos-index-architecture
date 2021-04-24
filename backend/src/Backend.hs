@@ -1,5 +1,12 @@
+{-# LANGUAGE NoImplicitPrelude #-}
+
 -- |
 module Backend where
 
-run :: IO ()
-run = putStrLn "FRI backend starting"
+import GRPC.Api (run)
+import Relude
+
+run :: Int -> Text -> IO ()
+run port elk = do
+  putTextLn $ "FRI backend running on :" <> show port
+  GRPC.Api.run port

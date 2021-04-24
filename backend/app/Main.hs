@@ -12,11 +12,15 @@ import Backend
 import Options.Generic
 
 data CLI w = CLI
-  { elkUrl :: w ::: Int <?> "The ELK service url"
+  { elkUrl :: w ::: Text <?> "The ELK service url",
+    port :: w ::: Int <?> "The listening port"
   }
   deriving stock (Generic)
+
+instance ParseRecord (CLI Wrapped) where
+  parseRecord = parseRecordWithModifiers lispCaseModifiers
 
 main :: IO ()
 main = do
   args <- unwrapRecord "Lentille worker"
-  Backend.run (elkUrl args)
+  Backend.run (port args) (elkUrl args)
