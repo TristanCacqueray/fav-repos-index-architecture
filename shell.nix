@@ -1,1 +1,1 @@
-(import ./default.nix {}).debug
+(import ./default.nix {}).devel
