@@ -57,35 +57,23 @@ let
       http.port: ${toString elk-port}
     '';
   };
-  startElk = pkgs.writeTextFile {
-    name = "startElk.sh";
-    executable = true;
-    text = ''
-      set -ex
-      export ES_HOME=${elk-home}
-      mkdir -p $ES_HOME/logs $ES_HOME/data
-      ${pkgs.rsync}/bin/rsync -a ${elk}/config/ $ES_HOME/config/
-      ln -sf ${elk}/modules/ $ES_HOME/
-      find $ES_HOME -type f | xargs chmod 0600
-      find $ES_HOME -type d | xargs chmod 0700
-      cat ${elkConf} > $ES_HOME/config/elasticsearch.yml
-      exec ${elk}/bin/elasticsearch -p $ES_HOME/pid
-    '';
-  };
-  stopElk = pkgs.writeTextFile {
-    name = "stopElk.sh";
-    executable = true;
-    text = "kill $(cat /tmp/es-home/pid)";
-  };
-  destroyElk = pkgs.writeTextFile {
-    name = "destroyElk.sh";
-    executable = true;
-    text = ''
-      set -x
-      [ -f ${elk-home}/pid ] && (${stopElk}; sleep 5)
-      rm -Rf ${elk-home}/
-    '';
-  };
+  elkStart = pkgs.writeScriptBin "elk-start" ''
+    set -ex
+    export ES_HOME=${elk-home}
+    mkdir -p $ES_HOME/logs $ES_HOME/data
+    ${pkgs.rsync}/bin/rsync -a ${elk}/config/ $ES_HOME/config/
+    ln -sf ${elk}/modules/ $ES_HOME/
+    find $ES_HOME -type f | xargs chmod 0600
+    find $ES_HOME -type d | xargs chmod 0700
+    cat ${elkConf} > $ES_HOME/config/elasticsearch.yml
+    exec ${elk}/bin/elasticsearch -p $ES_HOME/pid
+  '';
+  elkStop = pkgs.writeScriptBin "elk-stop" "kill $(cat /tmp/es-home/pid)";
+  elkDestroy = pkgs.writeScriptBin "elk-destroy" ''
+    set -x
+    [ -f ${elk-home}/pid ] && (${elkStop}/bin/elkstop; sleep 5)
+    rm -Rf ${elk-home}/
+  '';
 
   elk = pkgsNonFree.elasticsearch7;
 
@@ -106,18 +94,16 @@ let
     dontStrip = true;
     dontInstall = true;
   };
-
-  renderSchemas = pkgs.writeTextFile {
-    name = "renderSchemas.sh";
-    executable = true;
-    text = ''
-      ${hsPkgs.proto3-suite}/bin/compile-proto-file --proto protos/fri.proto --out src/
-      ${python-grpc}/bin/python -m grpc_tools.protoc -Iprotos --python_out=python/ --grpc_python_out=python/ fri.proto
-      echo "Using ${grpc-web}"
-      ${pkgs.protobuf}/bin/protoc -I=protos fri.proto --js_out=import_style=commonjs:javascript/src/ --grpc-web_out=import_style=commonjs,mode=grpcwebtext:javascript/src/
-      echo Done.
-    '';
-  };
+  protobufCodegen = pkgs.writeScriptBin "protobuf-codegen" ''
+    set -x
+    echo "# Haskell bindings"
+    ${hsPkgs.proto3-suite}/bin/compile-proto-file --proto protos/fri.proto --out src/
+    echo "# Python bindings"
+    ${python-grpc}/bin/python -m grpc_tools.protoc -Iprotos --python_out=python/ --grpc_python_out=python/ fri.proto
+    echo "# Javascript bindings using ${grpc-web}"
+    ${pkgs.protobuf}/bin/protoc -I=protos fri.proto --js_out=import_style=commonjs:javascript/src/ --grpc-web_out=import_style=commonjs,mode=grpcwebtext:javascript/src/
+    echo Done.
+  '';
 
   # user interface
   node = pkgs.nodePackages.pnpm;
@@ -128,33 +114,13 @@ let
     name = "envoy.yaml";
     text = builtins.readFile ./conf/envoy.yaml;
   };
-  startEnvoy = pkgs.writeTextFile {
-    name = "startEnvoy.sh";
-    executable = true;
-    text = ''
-      ${envoy}/bin/envoy -c ${envoyConf}
-    '';
-  };
+  envoyStart =
+    pkgs.writeScriptBin "envoy-start" "${envoy}/bin/envoy -c ${envoyConf}";
 
-  startApi = pkgs.writeTextFile {
-    name = "startApi.sh";
-    executable = true;
-    text =
-      "${hsPkgs.fri-backend}/bin/fri-api --elk-url localhost:8080 --port 8042";
-  };
+  apiStart = pkgs.writeScriptBin "api-start"
+    "${hsPkgs.fri-backend}/bin/fri-api --elk-url localhost:8080 --port 8042";
 
 in {
-  # Helper to manage the db
-  db = {
-    start = startElk;
-    stop = stopElk;
-    destroy = destroyElk;
-  };
-  proxy = { start = startEnvoy; };
-  api = { start = startApi; };
-
-  protobuf = { codegen = renderSchemas; };
-
   # Backend
   backend = hsPkgs.fri-backend;
 
@@ -163,6 +129,18 @@ in {
     packages = p: [ p.fri-backend ];
     buildInputs =
       [ hsPkgs.hlint hsPkgs.cabal-install hsPkgs.haskell-language-server ];
-    propagatedBuildInputs = [ pkgs.strace elk envoy python-grpc grpc-web node ];
+    propagatedBuildInputs = [
+      pkgs.strace
+      elk
+      envoy
+      python-grpc
+      grpc-web
+      node
+      elkStart
+      elkStop
+      elkDestroy
+      protobufCodegen
+      envoyStart
+    ];
   };
 }
