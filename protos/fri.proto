@@ -18,10 +18,9 @@ message RegisterRequest {
 }
 
 message RegisterResponse {
-  int32 status = 1;
   oneof value {
-    Repo repo  = 2;
-    string msg = 3;
+    Repo repo  = 1;
+    string msg = 2;
   }
 }
 

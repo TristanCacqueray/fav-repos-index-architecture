@@ -90,14 +90,8 @@ in {
   # Dev environment
   shell = hsPkgs.shellFor {
     packages = p: [ p.fri-backend ];
-    buildInputs = [
-      elk
-      startElk
-      pkgs.strace
-      hsPkgs.hlint
-      hsPkgs.cabal-install
-      hsPkgs.haskell-language-server
-      python-grpc
-    ];
+    buildInputs =
+      [ hsPkgs.hlint hsPkgs.cabal-install hsPkgs.haskell-language-server ];
+    propagatedBuildInputs = [ pkgs.strace elk python-grpc ];
   };
 }

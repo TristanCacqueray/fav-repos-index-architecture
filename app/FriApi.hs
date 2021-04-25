@@ -8,7 +8,7 @@
 -- |
 module Main (main) where
 
-import Backend
+import qualified Api
 import Options.Generic
 
 data CLI w = CLI
@@ -23,4 +23,4 @@ instance ParseRecord (CLI Wrapped) where
 main :: IO ()
 main = do
   args <- unwrapRecord "Lentille worker"
-  Backend.run (port args) (elkUrl args)
+  Api.run (port args) (elkUrl args)

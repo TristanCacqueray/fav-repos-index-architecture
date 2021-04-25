@@ -195,10 +195,9 @@ instance HsJSONPB.ToSchema RegisterRequest where
                                                      HsJSONPB.insOrdFromList
                                                        [("username", registerRequestUsername)]}})
  
-data RegisterResponse = RegisterResponse{registerResponseStatus ::
-                                         Hs.Int32,
-                                         registerResponseValue :: Hs.Maybe RegisterResponseValue}
-                      deriving (Hs.Show, Hs.Eq, Hs.Ord, Hs.Generic, Hs.NFData)
+newtype RegisterResponse = RegisterResponse{registerResponseValue
+                                            :: Hs.Maybe RegisterResponseValue}
+                           deriving (Hs.Show, Hs.Eq, Hs.Ord, Hs.Generic, Hs.NFData)
  
 instance HsProtobuf.Named RegisterResponse where
         nameOf _ = (Hs.fromString "RegisterResponse")
@@ -207,65 +206,52 @@ instance HsProtobuf.HasDefault RegisterResponse
  
 instance HsProtobuf.Message RegisterResponse where
         encodeMessage _
-          RegisterResponse{registerResponseStatus = registerResponseStatus,
-                           registerResponseValue = registerResponseValue}
+          RegisterResponse{registerResponseValue = registerResponseValue}
           = (Hs.mconcat
-               [(HsProtobuf.encodeMessageField (HsProtobuf.FieldNumber 1)
-                   registerResponseStatus),
-                case registerResponseValue of
+               [case registerResponseValue of
                     Hs.Nothing -> Hs.mempty
                     Hs.Just x
                       -> case x of
                              RegisterResponseValueRepo y
-                               -> (HsProtobuf.encodeMessageField (HsProtobuf.FieldNumber 2)
+                               -> (HsProtobuf.encodeMessageField (HsProtobuf.FieldNumber 1)
                                      (Hs.coerce @(Hs.Maybe Protos.Fri.Repo)
                                         @(HsProtobuf.Nested Protos.Fri.Repo)
                                         (Hs.Just y)))
                              RegisterResponseValueMsg y
-                               -> (HsProtobuf.encodeMessageField (HsProtobuf.FieldNumber 3)
+                               -> (HsProtobuf.encodeMessageField (HsProtobuf.FieldNumber 2)
                                      (HsProtobuf.ForceEmit y))])
         decodeMessage _
           = (Hs.pure RegisterResponse) <*>
-              (HsProtobuf.at HsProtobuf.decodeMessageField
-                 (HsProtobuf.FieldNumber 1))
-              <*>
               (HsProtobuf.oneof Hs.Nothing
-                 [((HsProtobuf.FieldNumber 2),
+                 [((HsProtobuf.FieldNumber 1),
                    (Hs.pure (Hs.fmap RegisterResponseValueRepo)) <*>
                      (Hs.coerce @(_ (HsProtobuf.Nested Protos.Fri.Repo))
                         @(_ (Hs.Maybe Protos.Fri.Repo))
                         HsProtobuf.decodeMessageField)),
-                  ((HsProtobuf.FieldNumber 3),
+                  ((HsProtobuf.FieldNumber 2),
                    (Hs.pure (Hs.Just Hs.. RegisterResponseValueMsg)) <*>
                      HsProtobuf.decodeMessageField)])
-        dotProto _
-          = [(HsProtobuf.DotProtoField (HsProtobuf.FieldNumber 1)
-                (HsProtobuf.Prim HsProtobuf.Int32)
-                (HsProtobuf.Single "status")
-                []
-                "")]
+        dotProto _ = []
  
 instance HsJSONPB.ToJSONPB RegisterResponse where
-        toJSONPB (RegisterResponse f1 f2_or_f3)
+        toJSONPB (RegisterResponse f1_or_f2)
           = (HsJSONPB.object
-               ["status" .= f1,
-                (let encodeValue
-                       = (case f2_or_f3 of
-                              Hs.Just (RegisterResponseValueRepo f2) -> (HsJSONPB.pair "repo" f2)
-                              Hs.Just (RegisterResponseValueMsg f3) -> (HsJSONPB.pair "msg" f3)
+               [(let encodeValue
+                       = (case f1_or_f2 of
+                              Hs.Just (RegisterResponseValueRepo f1) -> (HsJSONPB.pair "repo" f1)
+                              Hs.Just (RegisterResponseValueMsg f2) -> (HsJSONPB.pair "msg" f2)
                               Hs.Nothing -> Hs.mempty)
                    in
                    \ options ->
                      if HsJSONPB.optEmitNamedOneof options then
                        ("value" .= (HsJSONPB.objectOrNull [encodeValue] options)) options
                        else encodeValue options)])
-        toEncodingPB (RegisterResponse f1 f2_or_f3)
+        toEncodingPB (RegisterResponse f1_or_f2)
           = (HsJSONPB.pairs
-               ["status" .= f1,
-                (let encodeValue
-                       = (case f2_or_f3 of
-                              Hs.Just (RegisterResponseValueRepo f2) -> (HsJSONPB.pair "repo" f2)
-                              Hs.Just (RegisterResponseValueMsg f3) -> (HsJSONPB.pair "msg" f3)
+               [(let encodeValue
+                       = (case f1_or_f2 of
+                              Hs.Just (RegisterResponseValueRepo f1) -> (HsJSONPB.pair "repo" f1)
+                              Hs.Just (RegisterResponseValueMsg f2) -> (HsJSONPB.pair "msg" f2)
                               Hs.Nothing -> Hs.mempty)
                    in
                    \ options ->
@@ -277,7 +263,7 @@ instance HsJSONPB.FromJSONPB RegisterResponse where
         parseJSONPB
           = (HsJSONPB.withObject "RegisterResponse"
                (\ obj ->
-                  (Hs.pure RegisterResponse) <*> obj .: "status" <*>
+                  (Hs.pure RegisterResponse) <*>
                     (let parseValue parseObj
                            = Hs.msum
                                [Hs.Just Hs.. RegisterResponseValueRepo <$>
@@ -298,13 +284,9 @@ instance HsJSONPB.FromJSON RegisterResponse where
  
 instance HsJSONPB.ToSchema RegisterResponse where
         declareNamedSchema _
-          = do let declare_status = HsJSONPB.declareSchemaRef
-               registerResponseStatus <- declare_status Proxy.Proxy
-               let declare_value = HsJSONPB.declareSchemaRef
+          = do let declare_value = HsJSONPB.declareSchemaRef
                registerResponseValue <- declare_value Proxy.Proxy
-               let _ = Hs.pure RegisterResponse <*>
-                         HsJSONPB.asProxy declare_status
-                         <*> HsJSONPB.asProxy declare_value
+               let _ = Hs.pure RegisterResponse <*> HsJSONPB.asProxy declare_value
                Hs.return
                  (HsJSONPB.NamedSchema{HsJSONPB._namedSchemaName =
                                          Hs.Just "RegisterResponse",
@@ -314,8 +296,7 @@ instance HsJSONPB.ToSchema RegisterResponse where
                                                                  Hs.Just HsJSONPB.SwaggerObject},
                                                    HsJSONPB._schemaProperties =
                                                      HsJSONPB.insOrdFromList
-                                                       [("status", registerResponseStatus),
-                                                        ("value", registerResponseValue)]}})
+                                                       [("value", registerResponseValue)]}})
  
 data RegisterResponseValue = RegisterResponseValueRepo Protos.Fri.Repo
                            | RegisterResponseValueMsg Hs.Text
