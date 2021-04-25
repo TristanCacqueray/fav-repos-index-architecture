@@ -101,9 +101,24 @@ let
   # user interface
   node = pkgs.nodePackages.pnpm;
 
+  # proxy
+  envoy = pkgs.envoy;
+  envoyConf = pkgs.writeTextFile {
+    name = "envoy.yaml";
+    text = builtins.readFile ./conf/envoy.yaml;
+  };
+  startEnvoy = pkgs.writeTextFile {
+    name = "startEnvoy.sh";
+    executable = true;
+    text = ''
+      ${envoy}/bin/envoy -c ${envoyConf}
+    '';
+  };
+
 in {
   # Helper to manage the db
   db = { start = startElk; };
+  proxy = { start = startEnvoy; };
 
   renderSchema = renderSchema;
 
@@ -115,6 +130,6 @@ in {
     packages = p: [ p.fri-backend ];
     buildInputs =
       [ hsPkgs.hlint hsPkgs.cabal-install hsPkgs.haskell-language-server ];
-    propagatedBuildInputs = [ pkgs.strace elk python-grpc grpc-web node ];
+    propagatedBuildInputs = [ pkgs.strace elk envoy python-grpc grpc-web node ];
   };
 }
