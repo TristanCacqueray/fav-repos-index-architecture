@@ -98,6 +98,9 @@ let
     '';
   };
 
+  # user interface
+  node = pkgs.nodePackages.pnpm;
+
 in {
   # Helper to manage the db
   db = { start = startElk; };
@@ -112,6 +115,6 @@ in {
     packages = p: [ p.fri-backend ];
     buildInputs =
       [ hsPkgs.hlint hsPkgs.cabal-install hsPkgs.haskell-language-server ];
-    propagatedBuildInputs = [ pkgs.strace elk python-grpc grpc-web ];
+    propagatedBuildInputs = [ pkgs.strace elk python-grpc grpc-web node ];
   };
 }
