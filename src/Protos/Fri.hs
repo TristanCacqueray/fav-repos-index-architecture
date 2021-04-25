@@ -40,8 +40,8 @@ import Network.GRPC.HighLevel.Server as HsGRPC hiding (serverLoop)
 import Network.GRPC.HighLevel.Server.Unregistered as HsGRPC
        (serverLoop)
  
-data Repo = Repo{repoName :: Hs.Text, repoTopic :: Hs.Text,
-                 repoDescription :: Hs.Text}
+data Repo = Repo{repoName :: Hs.Text,
+                 repoTopic :: Hs.Vector Hs.Text, repoDescription :: Hs.Text}
           deriving (Hs.Show, Hs.Eq, Hs.Ord, Hs.Generic, Hs.NFData)
  
 instance HsProtobuf.Named Repo where
@@ -57,7 +57,8 @@ instance HsProtobuf.Message Repo where
                [(HsProtobuf.encodeMessageField (HsProtobuf.FieldNumber 1)
                    repoName),
                 (HsProtobuf.encodeMessageField (HsProtobuf.FieldNumber 2)
-                   repoTopic),
+                   (Hs.coerce @(Hs.Vector Hs.Text) @(HsProtobuf.UnpackedVec Hs.Text)
+                      repoTopic)),
                 (HsProtobuf.encodeMessageField (HsProtobuf.FieldNumber 3)
                    repoDescription)])
         decodeMessage _
@@ -65,8 +66,10 @@ instance HsProtobuf.Message Repo where
               (HsProtobuf.at HsProtobuf.decodeMessageField
                  (HsProtobuf.FieldNumber 1))
               <*>
-              (HsProtobuf.at HsProtobuf.decodeMessageField
-                 (HsProtobuf.FieldNumber 2))
+              (Hs.coerce @(_ (HsProtobuf.UnpackedVec Hs.Text))
+                 @(_ (Hs.Vector Hs.Text))
+                 (HsProtobuf.at HsProtobuf.decodeMessageField
+                    (HsProtobuf.FieldNumber 2)))
               <*>
               (HsProtobuf.at HsProtobuf.decodeMessageField
                  (HsProtobuf.FieldNumber 3))
@@ -77,7 +80,7 @@ instance HsProtobuf.Message Repo where
                 []
                 ""),
              (HsProtobuf.DotProtoField (HsProtobuf.FieldNumber 2)
-                (HsProtobuf.Prim HsProtobuf.String)
+                (HsProtobuf.Repeated HsProtobuf.String)
                 (HsProtobuf.Single "topic")
                 []
                 ""),
@@ -345,19 +348,167 @@ instance HsJSONPB.ToSchema RegisterResponseValue where
                                                    HsJSONPB._schemaMinProperties = Hs.Just 1,
                                                    HsJSONPB._schemaMaxProperties = Hs.Just 1}})
  
+newtype SearchRequest = SearchRequest{searchRequestQuery ::
+                                      Hs.Text}
+                        deriving (Hs.Show, Hs.Eq, Hs.Ord, Hs.Generic, Hs.NFData)
+ 
+instance HsProtobuf.Named SearchRequest where
+        nameOf _ = (Hs.fromString "SearchRequest")
+ 
+instance HsProtobuf.HasDefault SearchRequest
+ 
+instance HsProtobuf.Message SearchRequest where
+        encodeMessage _
+          SearchRequest{searchRequestQuery = searchRequestQuery}
+          = (Hs.mconcat
+               [(HsProtobuf.encodeMessageField (HsProtobuf.FieldNumber 1)
+                   searchRequestQuery)])
+        decodeMessage _
+          = (Hs.pure SearchRequest) <*>
+              (HsProtobuf.at HsProtobuf.decodeMessageField
+                 (HsProtobuf.FieldNumber 1))
+        dotProto _
+          = [(HsProtobuf.DotProtoField (HsProtobuf.FieldNumber 1)
+                (HsProtobuf.Prim HsProtobuf.String)
+                (HsProtobuf.Single "query")
+                []
+                "")]
+ 
+instance HsJSONPB.ToJSONPB SearchRequest where
+        toJSONPB (SearchRequest f1) = (HsJSONPB.object ["query" .= f1])
+        toEncodingPB (SearchRequest f1) = (HsJSONPB.pairs ["query" .= f1])
+ 
+instance HsJSONPB.FromJSONPB SearchRequest where
+        parseJSONPB
+          = (HsJSONPB.withObject "SearchRequest"
+               (\ obj -> (Hs.pure SearchRequest) <*> obj .: "query"))
+ 
+instance HsJSONPB.ToJSON SearchRequest where
+        toJSON = HsJSONPB.toAesonValue
+        toEncoding = HsJSONPB.toAesonEncoding
+ 
+instance HsJSONPB.FromJSON SearchRequest where
+        parseJSON = HsJSONPB.parseJSONPB
+ 
+instance HsJSONPB.ToSchema SearchRequest where
+        declareNamedSchema _
+          = do let declare_query = HsJSONPB.declareSchemaRef
+               searchRequestQuery <- declare_query Proxy.Proxy
+               let _ = Hs.pure SearchRequest <*> HsJSONPB.asProxy declare_query
+               Hs.return
+                 (HsJSONPB.NamedSchema{HsJSONPB._namedSchemaName =
+                                         Hs.Just "SearchRequest",
+                                       HsJSONPB._namedSchemaSchema =
+                                         Hs.mempty{HsJSONPB._schemaParamSchema =
+                                                     Hs.mempty{HsJSONPB._paramSchemaType =
+                                                                 Hs.Just HsJSONPB.SwaggerObject},
+                                                   HsJSONPB._schemaProperties =
+                                                     HsJSONPB.insOrdFromList
+                                                       [("query", searchRequestQuery)]}})
+ 
+data SearchResponse = SearchResponse{searchResponseScore ::
+                                     Hs.Int32,
+                                     searchResponseRepo :: Hs.Maybe Protos.Fri.Repo}
+                    deriving (Hs.Show, Hs.Eq, Hs.Ord, Hs.Generic, Hs.NFData)
+ 
+instance HsProtobuf.Named SearchResponse where
+        nameOf _ = (Hs.fromString "SearchResponse")
+ 
+instance HsProtobuf.HasDefault SearchResponse
+ 
+instance HsProtobuf.Message SearchResponse where
+        encodeMessage _
+          SearchResponse{searchResponseScore = searchResponseScore,
+                         searchResponseRepo = searchResponseRepo}
+          = (Hs.mconcat
+               [(HsProtobuf.encodeMessageField (HsProtobuf.FieldNumber 1)
+                   searchResponseScore),
+                (HsProtobuf.encodeMessageField (HsProtobuf.FieldNumber 2)
+                   (Hs.coerce @(Hs.Maybe Protos.Fri.Repo)
+                      @(HsProtobuf.Nested Protos.Fri.Repo)
+                      searchResponseRepo))])
+        decodeMessage _
+          = (Hs.pure SearchResponse) <*>
+              (HsProtobuf.at HsProtobuf.decodeMessageField
+                 (HsProtobuf.FieldNumber 1))
+              <*>
+              (Hs.coerce @(_ (HsProtobuf.Nested Protos.Fri.Repo))
+                 @(_ (Hs.Maybe Protos.Fri.Repo))
+                 (HsProtobuf.at HsProtobuf.decodeMessageField
+                    (HsProtobuf.FieldNumber 2)))
+        dotProto _
+          = [(HsProtobuf.DotProtoField (HsProtobuf.FieldNumber 1)
+                (HsProtobuf.Prim HsProtobuf.Int32)
+                (HsProtobuf.Single "score")
+                []
+                ""),
+             (HsProtobuf.DotProtoField (HsProtobuf.FieldNumber 2)
+                (HsProtobuf.Prim (HsProtobuf.Named (HsProtobuf.Single "Repo")))
+                (HsProtobuf.Single "repo")
+                []
+                "")]
+ 
+instance HsJSONPB.ToJSONPB SearchResponse where
+        toJSONPB (SearchResponse f1 f2)
+          = (HsJSONPB.object ["score" .= f1, "repo" .= f2])
+        toEncodingPB (SearchResponse f1 f2)
+          = (HsJSONPB.pairs ["score" .= f1, "repo" .= f2])
+ 
+instance HsJSONPB.FromJSONPB SearchResponse where
+        parseJSONPB
+          = (HsJSONPB.withObject "SearchResponse"
+               (\ obj ->
+                  (Hs.pure SearchResponse) <*> obj .: "score" <*> obj .: "repo"))
+ 
+instance HsJSONPB.ToJSON SearchResponse where
+        toJSON = HsJSONPB.toAesonValue
+        toEncoding = HsJSONPB.toAesonEncoding
+ 
+instance HsJSONPB.FromJSON SearchResponse where
+        parseJSON = HsJSONPB.parseJSONPB
+ 
+instance HsJSONPB.ToSchema SearchResponse where
+        declareNamedSchema _
+          = do let declare_score = HsJSONPB.declareSchemaRef
+               searchResponseScore <- declare_score Proxy.Proxy
+               let declare_repo = HsJSONPB.declareSchemaRef
+               searchResponseRepo <- declare_repo Proxy.Proxy
+               let _ = Hs.pure SearchResponse <*> HsJSONPB.asProxy declare_score
+                         <*> HsJSONPB.asProxy declare_repo
+               Hs.return
+                 (HsJSONPB.NamedSchema{HsJSONPB._namedSchemaName =
+                                         Hs.Just "SearchResponse",
+                                       HsJSONPB._namedSchemaSchema =
+                                         Hs.mempty{HsJSONPB._schemaParamSchema =
+                                                     Hs.mempty{HsJSONPB._paramSchemaType =
+                                                                 Hs.Just HsJSONPB.SwaggerObject},
+                                                   HsJSONPB._schemaProperties =
+                                                     HsJSONPB.insOrdFromList
+                                                       [("score", searchResponseScore),
+                                                        ("repo", searchResponseRepo)]}})
+ 
 data Service request response = Service{serviceRegister ::
                                         request 'HsGRPC.ServerStreaming Protos.Fri.RegisterRequest
                                           Protos.Fri.RegisterResponse
                                           ->
                                           Hs.IO
                                             (response 'HsGRPC.ServerStreaming
-                                               Protos.Fri.RegisterResponse)}
+                                               Protos.Fri.RegisterResponse),
+                                        serviceSearch ::
+                                        request 'HsGRPC.ServerStreaming Protos.Fri.SearchRequest
+                                          Protos.Fri.SearchResponse
+                                          ->
+                                          Hs.IO
+                                            (response 'HsGRPC.ServerStreaming
+                                               Protos.Fri.SearchResponse)}
                               deriving Hs.Generic
  
 serviceServer ::
                 Service HsGRPC.ServerRequest HsGRPC.ServerResponse ->
                   HsGRPC.ServiceOptions -> Hs.IO ()
-serviceServer Service{serviceRegister = serviceRegister}
+serviceServer
+  Service{serviceRegister = serviceRegister,
+          serviceSearch = serviceSearch}
   (ServiceOptions serverHost serverPort useCompression
      userAgentPrefix userAgentSuffix initialMetadata sslConfig logger
      serverMaxReceiveMessageLength)
@@ -367,7 +518,10 @@ serviceServer Service{serviceRegister = serviceRegister}
                              HsGRPC.optServerStreamHandlers =
                                [(HsGRPC.ServerStreamHandler
                                    (HsGRPC.MethodName "/fri.v1.Service/Register")
-                                   (HsGRPC.convertGeneratedServerWriterHandler serviceRegister))],
+                                   (HsGRPC.convertGeneratedServerWriterHandler serviceRegister)),
+                                (HsGRPC.ServerStreamHandler
+                                   (HsGRPC.MethodName "/fri.v1.Service/Search")
+                                   (HsGRPC.convertGeneratedServerWriterHandler serviceSearch))],
                              HsGRPC.optBiDiStreamHandlers = [], optServerHost = serverHost,
                              optServerPort = serverPort, optUseCompression = useCompression,
                              optUserAgentPrefix = userAgentPrefix,
@@ -384,3 +538,7 @@ serviceClient client
       ((Hs.pure (HsGRPC.clientRequest client)) <*>
          (HsGRPC.clientRegisterMethod client
             (HsGRPC.MethodName "/fri.v1.Service/Register")))
+      <*>
+      ((Hs.pure (HsGRPC.clientRequest client)) <*>
+         (HsGRPC.clientRegisterMethod client
+            (HsGRPC.MethodName "/fri.v1.Service/Search")))

@@ -8,11 +8,11 @@ package fri.v1;
 // Model
 message Repo {
   string name = 1;
-  string topic = 2;
+  repeated string topic = 2;
   string description = 3;
 }
 
-// Messages
+// Input/Output
 message RegisterRequest {
   string username = 1;
 }
@@ -25,7 +25,17 @@ message RegisterResponse {
   }
 }
 
+message SearchRequest {
+  string query = 1;
+}
+
+message SearchResponse {
+  int32 score = 1;
+  Repo repo   = 2;
+}
+
 // API
 service Service {
-    rpc Register(RegisterRequest) returns (stream RegisterResponse) {};
+  rpc Register(RegisterRequest) returns (stream RegisterResponse) {};
+  rpc Search(SearchRequest) returns (stream SearchResponse) {};
 }

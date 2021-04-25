@@ -43,7 +43,7 @@ let
   hsPkgs = pkgs-grpc.haskellPackages.extend (haskellExtension);
 
   # a python venv with grpc tools
-  python-grpc = pkgs.python39.withPackages (ps: [ ps.grpcio ]);
+  python-grpc = pkgs.python39.withPackages (ps: [ ps.grpcio ps.grpcio-tools ]);
 
   # DB
   elkConf = pkgs.writeTextFile {
@@ -73,14 +73,16 @@ let
     name = "renderSchema.sh";
     executable = true;
     text = ''
-      ${hsPkgs.proto3-suite}/bin/compile-proto-file --proto protos/fri.proto --out backend/src/
-      ${python-grpc}/bin/python -m grpc_tools.protoc -Iprotos --python_out=tools/ --grpc_python_out=tools/ fri.proto
+      ${hsPkgs.proto3-suite}/bin/compile-proto-file --proto protos/fri.proto --out src/
+      ${python-grpc}/bin/python -m grpc_tools.protoc -Iprotos --python_out=python/ --grpc_python_out=python/ fri.proto
     '';
   };
 
 in {
   # Helper to manage the db
   db = { start = startElk; };
+
+  renderSchema = renderSchema;
 
   # Backend
   backend = hsPkgs.fri-backend;
