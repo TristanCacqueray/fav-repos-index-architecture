@@ -1,4 +1,4 @@
-{ elk-port ? 9200 }:
+{ elk-port ? 9242, elk-home ? "/tmp/es-home" }:
 let
   # pin the upstream nixpkgs
   nixpkgsSrc = (import (fetchTarball {
@@ -6,8 +6,13 @@ let
       "https://github.com/NixOS/nixpkgs/archive/8d0340aee5caac3807c58ad7fa4ebdbbdd9134d6.tar.gz";
     sha256 = "0r00azbz64fz8yylm8x37imnrsm5cdzshd5ma8gwfwjyw166n3r1";
   }));
-  # use the nixpkgs source of gRPC-haskell to ensure the libgrpc build correctly
-  nixpkgsGrpcSrc = (import ../../awakesecurity/gRPC-haskell/nixpkgs.nix);
+  # import gRPC-haskell derivations and overlay to ensure the libgrpc build correctly
+  grpcHaskellRepo = fetchTarball {
+    url =
+      "https://github.com/awakesecurity/gRPC-haskell/archive/78bcc540af43f32a4411c9142f629dd928b911d6.tar.gz";
+    sha256 = "1mvq06crjazczq3vwbcnj8nq2kqn44p9cnljcybzpfqw4ha0kg19";
+  };
+  nixpkgsGrpcSrc = (import "${grpcHaskellRepo}/nixpkgs.nix");
   # setup the actual package set
   pkgs = nixpkgsSrc { };
   pkgsNonFree = nixpkgsSrc { config.allowUnfree = true; };
@@ -35,7 +40,7 @@ let
   };
 
   # setup the haskell package set using the gRPC-haskell overlay
-  grpc-overlay = (import ../../awakesecurity/gRPC-haskell/release.nix).overlay;
+  grpc-overlay = (import "${grpcHaskellRepo}/release.nix").overlay;
   pkgs-grpc = nixpkgsGrpcSrc {
     overlays = [ grpc-overlay ];
     config = { allowBroken = true; };
@@ -56,16 +61,32 @@ let
     name = "startElk.sh";
     executable = true;
     text = ''
-      export ES_HOME=/tmp/es-home
+      set -ex
+      export ES_HOME=${elk-home}
       mkdir -p $ES_HOME/logs $ES_HOME/data
-             E        ${pkgs.rsync}/bin/rsync -a ${elk}/config/ $ES_HOME/config/
-      ln -sf ${elk}/modules $ES_HOME/modules 2> /dev/null
+      ${pkgs.rsync}/bin/rsync -a ${elk}/config/ $ES_HOME/config/
+      ln -sf ${elk}/modules/ $ES_HOME/
       find $ES_HOME -type f | xargs chmod 0600
       find $ES_HOME -type d | xargs chmod 0700
       cat ${elkConf} > $ES_HOME/config/elasticsearch.yml
-      exec ${elk}/bin/elasticsearch
+      exec ${elk}/bin/elasticsearch -p $ES_HOME/pid
     '';
   };
+  stopElk = pkgs.writeTextFile {
+    name = "stopElk.sh";
+    executable = true;
+    text = "kill $(cat /tmp/es-home/pid)";
+  };
+  destroyElk = pkgs.writeTextFile {
+    name = "destroyElk.sh";
+    executable = true;
+    text = ''
+      set -x
+      [ -f ${elk-home}/pid ] && (${stopElk}; sleep 5)
+      rm -Rf ${elk-home}/
+    '';
+  };
+
   elk = pkgsNonFree.elasticsearch7;
 
   # Protobuf
@@ -86,8 +107,8 @@ let
     dontInstall = true;
   };
 
-  renderSchema = pkgs.writeTextFile {
-    name = "renderSchema.sh";
+  renderSchemas = pkgs.writeTextFile {
+    name = "renderSchemas.sh";
     executable = true;
     text = ''
       ${hsPkgs.proto3-suite}/bin/compile-proto-file --proto protos/fri.proto --out src/
@@ -115,12 +136,24 @@ let
     '';
   };
 
+  startApi = pkgs.writeTextFile {
+    name = "startApi.sh";
+    executable = true;
+    text =
+      "${hsPkgs.fri-backend}/bin/fri-api --elk-url localhost:8080 --port 8042";
+  };
+
 in {
   # Helper to manage the db
-  db = { start = startElk; };
+  db = {
+    start = startElk;
+    stop = stopElk;
+    destroy = destroyElk;
+  };
   proxy = { start = startEnvoy; };
+  api = { start = startApi; };
 
-  renderSchema = renderSchema;
+  protobuf = { codegen = renderSchemas; };
 
   # Backend
   backend = hsPkgs.fri-backend;
