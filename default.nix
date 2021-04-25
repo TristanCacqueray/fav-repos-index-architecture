@@ -1,10 +1,14 @@
 { elk-port ? 9200 }:
 let
+  # pin the upstream nixpkgs
   nixpkgsSrc = (import (fetchTarball {
     url =
       "https://github.com/NixOS/nixpkgs/archive/8d0340aee5caac3807c58ad7fa4ebdbbdd9134d6.tar.gz";
     sha256 = "0r00azbz64fz8yylm8x37imnrsm5cdzshd5ma8gwfwjyw166n3r1";
   }));
+  # use the nixpkgs source of gRPC-haskell to ensure the libgrpc build correctly
+  nixpkgsGrpcSrc = (import ../../awakesecurity/gRPC-haskell/nixpkgs.nix);
+  # setup the actual package set
   pkgs = nixpkgsSrc { };
   pkgsNonFree = nixpkgsSrc { config.allowUnfree = true; };
 
@@ -27,66 +31,71 @@ let
     };
 
     # our code is added to the set
-    fri-backend = self.callCabal2nix "fri-backend" ./backend/. { };
+    fri-backend = self.callCabal2nix "fri-backend" ./. { };
   };
 
-  # TODO: push grpc to the next change
-  grpc = (import ../../awakesecurity/gRPC-haskell/release.nix).linuxPkgs;
-  hsPkgs = grpc.haskellPackages.extend (haskellExtension);
-
-in let
-  fri = rec {
-    # DB
-    elkConf = pkgs.writeTextFile {
-      name = "elasticsearch.yml";
-      text = ''
-        http.port: ${toString elk-port}
-      '';
-    };
-    startElk = pkgs.writeTextFile {
-      name = "startElk.sh";
-      executable = true;
-      text = ''
-        export ES_HOME=/tmp/es-home
-        mkdir -p $ES_HOME/logs $ES_HOME/data
-               E        ${pkgs.rsync}/bin/rsync -a ${elk}/config/ $ES_HOME/config/
-        ln -sf ${elk}/modules $ES_HOME/modules 2> /dev/null
-        find $ES_HOME -type f | xargs chmod 0600
-        find $ES_HOME -type d | xargs chmod 0700
-        cat ${elkConf} > $ES_HOME/config/elasticsearch.yml
-        exec ${elk}/bin/elasticsearch
-      '';
-    };
-    elk = pkgsNonFree.elasticsearch7;
-
-    db = { start = startElk; };
-
-    # Backend
-    backend = hsPkgs.fri-backend;
-
-    # Protobuf
-    python-grpc = pkgs.python39.withPackages (ps: [ ps.grpcio ]);
-
-    renderSchema = pkgs.writeTextFile {
-      name = "renderSchema.sh";
-      executable = true;
-      text = ''
-        ${hsPkgs.proto3-suite}/bin/compile-proto-file --proto protos/fri.proto --out backend/src/
-        ${python-grpc}/bin/python -m grpc_tools.protoc -Iprotos --python_out=tools/ --grpc_python_out=tools/ fri.proto
-      '';
-    };
-
-    # Debug
-    devel = hsPkgs.shellFor {
-      packages = p: [ p.fri-backend ];
-      buildInputs = [
-        elk
-        pkgs.strace
-        hsPkgs.hlint
-        hsPkgs.cabal-install
-        hsPkgs.haskell-language-server
-        python-grpc
-      ];
-    };
+  # setup the haskell package set using the gRPC-haskell overlay
+  grpc-overlay = (import ../../awakesecurity/gRPC-haskell/release.nix).overlay;
+  pkgs-grpc = nixpkgsGrpcSrc {
+    overlays = [ grpc-overlay ];
+    config = { allowBroken = true; };
   };
-in fri
+  hsPkgs = pkgs-grpc.haskellPackages.extend (haskellExtension);
+
+  # a python venv with grpc tools
+  python-grpc = pkgs.python39.withPackages (ps: [ ps.grpcio ]);
+
+  # DB
+  elkConf = pkgs.writeTextFile {
+    name = "elasticsearch.yml";
+    text = ''
+      http.port: ${toString elk-port}
+    '';
+  };
+  startElk = pkgs.writeTextFile {
+    name = "startElk.sh";
+    executable = true;
+    text = ''
+      export ES_HOME=/tmp/es-home
+      mkdir -p $ES_HOME/logs $ES_HOME/data
+             E        ${pkgs.rsync}/bin/rsync -a ${elk}/config/ $ES_HOME/config/
+      ln -sf ${elk}/modules $ES_HOME/modules 2> /dev/null
+      find $ES_HOME -type f | xargs chmod 0600
+      find $ES_HOME -type d | xargs chmod 0700
+      cat ${elkConf} > $ES_HOME/config/elasticsearch.yml
+      exec ${elk}/bin/elasticsearch
+    '';
+  };
+  elk = pkgsNonFree.elasticsearch7;
+
+  # Protobuf
+  renderSchema = pkgs.writeTextFile {
+    name = "renderSchema.sh";
+    executable = true;
+    text = ''
+      ${hsPkgs.proto3-suite}/bin/compile-proto-file --proto protos/fri.proto --out backend/src/
+      ${python-grpc}/bin/python -m grpc_tools.protoc -Iprotos --python_out=tools/ --grpc_python_out=tools/ fri.proto
+    '';
+  };
+
+in {
+  # Helper to manage the db
+  db = { start = startElk; };
+
+  # Backend
+  backend = hsPkgs.fri-backend;
+
+  # Dev environment
+  shell = hsPkgs.shellFor {
+    packages = p: [ p.fri-backend ];
+    buildInputs = [
+      elk
+      startElk
+      pkgs.strace
+      hsPkgs.hlint
+      hsPkgs.cabal-install
+      hsPkgs.haskell-language-server
+      python-grpc
+    ];
+  };
+}
