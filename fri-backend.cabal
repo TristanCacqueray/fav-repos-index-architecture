@@ -35,6 +35,7 @@ library
   exposed-modules:     Api
                        Types
                        Query
+                       FriGitHub
   other-modules:       Protos
                      , Protos.Fri
 
