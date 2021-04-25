@@ -69,12 +69,32 @@ let
   elk = pkgsNonFree.elasticsearch7;
 
   # Protobuf
+  grpc-web = pkgs.stdenv.mkDerivation rec {
+    pname = "grpc-web";
+    version = "1.2.1";
+    src = pkgs.fetchurl {
+      url =
+        "https://github.com/grpc/grpc-web/releases/download/1.2.1/protoc-gen-grpc-web-1.2.1-linux-x86_64";
+      sha256 = "15y5k71f1nm1zg9misxs5b7yk0n1g32hwsc3ip9khbchnxfn5qbc";
+    };
+    propagatedBuildInputs = [ pkgs.protobuf ];
+    unpackPhase = ''
+      mkdir -p $out/bin
+      cp $src $out/bin/protoc-gen-grpc-web
+    '';
+    dontStrip = true;
+    dontInstall = true;
+  };
+
   renderSchema = pkgs.writeTextFile {
     name = "renderSchema.sh";
     executable = true;
     text = ''
       ${hsPkgs.proto3-suite}/bin/compile-proto-file --proto protos/fri.proto --out src/
       ${python-grpc}/bin/python -m grpc_tools.protoc -Iprotos --python_out=python/ --grpc_python_out=python/ fri.proto
+      echo "Using ${grpc-web}"
+      ${pkgs.protobuf}/bin/protoc -I=protos fri.proto --js_out=import_style=commonjs:javascript/src/ --grpc-web_out=import_style=commonjs,mode=grpcwebtext:javascript/src/
+      echo Done.
     '';
   };
 
@@ -92,6 +112,6 @@ in {
     packages = p: [ p.fri-backend ];
     buildInputs =
       [ hsPkgs.hlint hsPkgs.cabal-install hsPkgs.haskell-language-server ];
-    propagatedBuildInputs = [ pkgs.strace elk python-grpc ];
+    propagatedBuildInputs = [ pkgs.strace elk python-grpc grpc-web ];
   };
 }
