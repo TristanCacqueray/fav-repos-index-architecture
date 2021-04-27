@@ -10,6 +10,7 @@ message Repo {
   string name = 1;
   repeated string topic = 2;
   string description = 3;
+  repeated string stargazers = 4;
 }
 
 // Input/Output

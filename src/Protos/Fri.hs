@@ -45,7 +45,8 @@ import qualified Prelude as Hs
 data Repo = Repo
   { repoName :: Hs.Text,
     repoTopic :: Hs.Vector Hs.Text,
-    repoDescription :: Hs.Text
+    repoDescription :: Hs.Text,
+    repoStargazers :: Hs.Vector Hs.Text
   }
   deriving (Hs.Show, Hs.Eq, Hs.Ord, Hs.Generic, Hs.NFData)
 
@@ -60,7 +61,8 @@ instance HsProtobuf.Message Repo where
     Repo
       { repoName = repoName,
         repoTopic = repoTopic,
-        repoDescription = repoDescription
+        repoDescription = repoDescription,
+        repoStargazers = repoStargazers
       } =
       ( Hs.mconcat
           [ ( HsProtobuf.encodeMessageField
@@ -76,6 +78,12 @@ instance HsProtobuf.Message Repo where
             ( HsProtobuf.encodeMessageField
                 (HsProtobuf.FieldNumber 3)
                 repoDescription
+            ),
+            ( HsProtobuf.encodeMessageField
+                (HsProtobuf.FieldNumber 4)
+                ( Hs.coerce @(Hs.Vector Hs.Text) @(HsProtobuf.UnpackedVec Hs.Text)
+                    repoStargazers
+                )
             )
           ]
       )
@@ -95,6 +103,13 @@ instance HsProtobuf.Message Repo where
       <*> ( HsProtobuf.at
               HsProtobuf.decodeMessageField
               (HsProtobuf.FieldNumber 3)
+          )
+      <*> ( Hs.coerce @(_ (HsProtobuf.UnpackedVec Hs.Text))
+              @(_ (Hs.Vector Hs.Text))
+              ( HsProtobuf.at
+                  HsProtobuf.decodeMessageField
+                  (HsProtobuf.FieldNumber 4)
+              )
           )
   dotProto _ =
     [ ( HsProtobuf.DotProtoField
@@ -117,17 +132,32 @@ instance HsProtobuf.Message Repo where
           (HsProtobuf.Single "description")
           []
           ""
+      ),
+      ( HsProtobuf.DotProtoField
+          (HsProtobuf.FieldNumber 4)
+          (HsProtobuf.Repeated HsProtobuf.String)
+          (HsProtobuf.Single "stargazers")
+          []
+          ""
       )
     ]
 
 instance HsJSONPB.ToJSONPB Repo where
-  toJSONPB (Repo f1 f2 f3) =
+  toJSONPB (Repo f1 f2 f3 f4) =
     ( HsJSONPB.object
-        ["name" .= f1, "topic" .= f2, "description" .= f3]
+        [ "name" .= f1,
+          "topic" .= f2,
+          "description" .= f3,
+          "stargazers" .= f4
+        ]
     )
-  toEncodingPB (Repo f1 f2 f3) =
+  toEncodingPB (Repo f1 f2 f3 f4) =
     ( HsJSONPB.pairs
-        ["name" .= f1, "topic" .= f2, "description" .= f3]
+        [ "name" .= f1,
+          "topic" .= f2,
+          "description" .= f3,
+          "stargazers" .= f4
+        ]
     )
 
 instance HsJSONPB.FromJSONPB Repo where
@@ -137,6 +167,7 @@ instance HsJSONPB.FromJSONPB Repo where
         ( \obj ->
             (Hs.pure Repo) <*> obj .: "name" <*> obj .: "topic"
               <*> obj .: "description"
+              <*> obj .: "stargazers"
         )
     )
 
@@ -156,10 +187,13 @@ instance HsJSONPB.ToSchema Repo where
       repoTopic <- declare_topic Proxy.Proxy
       let declare_description = HsJSONPB.declareSchemaRef
       repoDescription <- declare_description Proxy.Proxy
+      let declare_stargazers = HsJSONPB.declareSchemaRef
+      repoStargazers <- declare_stargazers Proxy.Proxy
       let _ =
             Hs.pure Repo <*> HsJSONPB.asProxy declare_name
               <*> HsJSONPB.asProxy declare_topic
               <*> HsJSONPB.asProxy declare_description
+              <*> HsJSONPB.asProxy declare_stargazers
       Hs.return
         ( HsJSONPB.NamedSchema
             { HsJSONPB._namedSchemaName = Hs.Just "Repo",
@@ -174,7 +208,8 @@ instance HsJSONPB.ToSchema Repo where
                       HsJSONPB.insOrdFromList
                         [ ("name", repoName),
                           ("topic", repoTopic),
-                          ("description", repoDescription)
+                          ("description", repoDescription),
+                          ("stargazers", repoStargazers)
                         ]
                   }
             }

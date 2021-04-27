@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\tfri.proto\x12\x06\x66ri.v1\"8\n\x04Repo\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05topic\x18\x02 \x03(\t\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\"#\n\x0fRegisterRequest\x12\x10\n\x08username\x18\x01 \x01(\t\"H\n\x10RegisterResponse\x12\x1c\n\x04repo\x18\x01 \x01(\x0b\x32\x0c.fri.v1.RepoH\x00\x12\r\n\x03msg\x18\x02 \x01(\tH\x00\x42\x07\n\x05value\"\x1e\n\rSearchRequest\x12\r\n\x05query\x18\x01 \x01(\t\";\n\x0eSearchResponse\x12\r\n\x05score\x18\x01 \x01(\x05\x12\x1a\n\x04repo\x18\x02 \x01(\x0b\x32\x0c.fri.v1.Repo2\x89\x01\n\x07Service\x12\x41\n\x08Register\x12\x17.fri.v1.RegisterRequest\x1a\x18.fri.v1.RegisterResponse\"\x00\x30\x01\x12;\n\x06Search\x12\x15.fri.v1.SearchRequest\x1a\x16.fri.v1.SearchResponse\"\x00\x30\x01\x62\x06proto3'
+  serialized_pb=b'\n\tfri.proto\x12\x06\x66ri.v1\"L\n\x04Repo\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05topic\x18\x02 \x03(\t\x12\x13\n\x0b\x64\x65scription\x18\x03 \x01(\t\x12\x12\n\nstargazers\x18\x04 \x03(\t\"#\n\x0fRegisterRequest\x12\x10\n\x08username\x18\x01 \x01(\t\"H\n\x10RegisterResponse\x12\x1c\n\x04repo\x18\x01 \x01(\x0b\x32\x0c.fri.v1.RepoH\x00\x12\r\n\x03msg\x18\x02 \x01(\tH\x00\x42\x07\n\x05value\"\x1e\n\rSearchRequest\x12\r\n\x05query\x18\x01 \x01(\t\";\n\x0eSearchResponse\x12\r\n\x05score\x18\x01 \x01(\x05\x12\x1a\n\x04repo\x18\x02 \x01(\x0b\x32\x0c.fri.v1.Repo2\x89\x01\n\x07Service\x12\x41\n\x08Register\x12\x17.fri.v1.RegisterRequest\x1a\x18.fri.v1.RegisterResponse\"\x00\x30\x01\x12;\n\x06Search\x12\x15.fri.v1.SearchRequest\x1a\x16.fri.v1.SearchResponse\"\x00\x30\x01\x62\x06proto3'
 )
 
 
@@ -54,6 +54,13 @@ _REPO = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='stargazers', full_name='fri.v1.Repo.stargazers', index=3,
+      number=4, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -67,7 +74,7 @@ _REPO = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=21,
-  serialized_end=77,
+  serialized_end=97,
 )
 
 
@@ -98,8 +105,8 @@ _REGISTERREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=79,
-  serialized_end=114,
+  serialized_start=99,
+  serialized_end=134,
 )
 
 
@@ -142,8 +149,8 @@ _REGISTERRESPONSE = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=116,
-  serialized_end=188,
+  serialized_start=136,
+  serialized_end=208,
 )
 
 
@@ -174,8 +181,8 @@ _SEARCHREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=190,
-  serialized_end=220,
+  serialized_start=210,
+  serialized_end=240,
 )
 
 
@@ -213,8 +220,8 @@ _SEARCHRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=222,
-  serialized_end=281,
+  serialized_start=242,
+  serialized_end=301,
 )
 
 _REGISTERRESPONSE.fields_by_name['repo'].message_type = _REPO
@@ -276,8 +283,8 @@ _SERVICE = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=284,
-  serialized_end=421,
+  serialized_start=304,
+  serialized_end=441,
   methods=[
   _descriptor.MethodDescriptor(
     name='Register',

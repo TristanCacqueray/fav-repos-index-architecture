@@ -132,7 +132,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<number>}
  * @const
  */
-proto.fri.v1.Repo.repeatedFields_ = [2];
+proto.fri.v1.Repo.repeatedFields_ = [2,4];
 
 
 
@@ -167,7 +167,8 @@ proto.fri.v1.Repo.toObject = function(includeInstance, msg) {
   var f, obj = {
     name: jspb.Message.getFieldWithDefault(msg, 1, ""),
     topicList: (f = jspb.Message.getRepeatedField(msg, 2)) == null ? undefined : f,
-    description: jspb.Message.getFieldWithDefault(msg, 3, "")
+    description: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    stargazersList: (f = jspb.Message.getRepeatedField(msg, 4)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -216,6 +217,10 @@ proto.fri.v1.Repo.deserializeBinaryFromReader = function(msg, reader) {
       var value = /** @type {string} */ (reader.readString());
       msg.setDescription(value);
       break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addStargazers(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -263,6 +268,13 @@ proto.fri.v1.Repo.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       3,
+      f
+    );
+  }
+  f = message.getStargazersList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      4,
       f
     );
   }
@@ -339,6 +351,43 @@ proto.fri.v1.Repo.prototype.getDescription = function() {
  */
 proto.fri.v1.Repo.prototype.setDescription = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * repeated string stargazers = 4;
+ * @return {!Array<string>}
+ */
+proto.fri.v1.Repo.prototype.getStargazersList = function() {
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 4));
+};
+
+
+/**
+ * @param {!Array<string>} value
+ * @return {!proto.fri.v1.Repo} returns this
+ */
+proto.fri.v1.Repo.prototype.setStargazersList = function(value) {
+  return jspb.Message.setField(this, 4, value || []);
+};
+
+
+/**
+ * @param {string} value
+ * @param {number=} opt_index
+ * @return {!proto.fri.v1.Repo} returns this
+ */
+proto.fri.v1.Repo.prototype.addStargazers = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 4, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.fri.v1.Repo} returns this
+ */
+proto.fri.v1.Repo.prototype.clearStargazersList = function() {
+  return this.setStargazersList([]);
 };
 
 
