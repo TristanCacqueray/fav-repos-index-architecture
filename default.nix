@@ -98,6 +98,7 @@ let
     set -x
     echo "# Haskell bindings"
     ${hsPkgs.proto3-suite}/bin/compile-proto-file --proto protos/fri.proto --out src/
+    ${pkgs.ormolu}/bin/ormolu -i src/Protos/Fri.hs
     echo "# Python bindings"
     ${python-grpc}/bin/python -m grpc_tools.protoc -Iprotos --python_out=python/ --grpc_python_out=python/ fri.proto
     echo "# Javascript bindings using ${grpc-web}"
