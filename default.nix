@@ -35,6 +35,10 @@ let
       broken = false;
     };
 
+    caching-reverse-proxy = self.callCabal2nix "caching-reverse-proxy"
+      ../../../softwarefactory-project.io/software-factory/caching-reverse-proxy/.
+      { };
+
     # our code is added to the set
     fri-backend = self.callCabal2nix "fri-backend" ./. { };
   };
@@ -126,6 +130,9 @@ let
   apiStart = pkgs.writeScriptBin "api-start"
     "${hsPkgs.fri-backend}/bin/fri-api --elk-url localhost:8080 --port 8042";
 
+  githubCacheStart = pkgs.writeScriptBin "gh-cache-start"
+    "${hsPkgs.caching-reverse-proxy}/bin/caching-reverse-proxy --path /srv/api.github.com --port 8043 --dest-host api.github.com --dest-port 443";
+
 in {
   # Backend
   backend = hsPkgs.fri-backend;
@@ -133,8 +140,12 @@ in {
   # Dev environment
   shell = hsPkgs.shellFor {
     packages = p: [ p.fri-backend ];
-    buildInputs =
-      [ hsPkgs.hlint hsPkgs.cabal-install hsPkgs.ghcid hsPkgs.haskell-language-server ];
+    buildInputs = [
+      hsPkgs.hlint
+      hsPkgs.cabal-install
+      hsPkgs.ghcid
+      hsPkgs.haskell-language-server
+    ];
     propagatedBuildInputs = [
       pkgs.strace
       elk
@@ -145,6 +156,7 @@ in {
       elkStart
       elkStop
       elkDestroy
+      githubCacheStart
       protobufCodegen
       envoyStart
     ];

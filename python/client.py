@@ -11,9 +11,9 @@ def run():
     with grpc.insecure_channel('127.0.0.1:8042') as channel:
         print("Starting request", channel)
         stub = FriClient.ServiceStub(channel)
-        for i in range(100):
-            for resp in stub.Register(Fri.RegisterRequest(username='guest')):
-                print(resp)
+        req = Fri.RegisterRequest(username='TristanCacqueray')
+        for resp in stub.Register(req):
+            print(resp)
     print("Done.")
 
 

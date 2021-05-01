@@ -40,12 +40,17 @@ instance ToJSON RepoMapping where
 -- newClient "http://localhost:9242" >>=
 --     \client -> runQuery client $ addRepos [RepoName "test-owner/repo"]
 -- }:
-addRepos :: (MonadThrow m, MonadIO m) => V.Vector RepoName -> Query m ()
+addRepos :: (MonadThrow m, MonadIO m) => V.Vector RepoInitial -> Query m ()
 addRepos repos = do
   checkResp "add repos" <$> BH.bulk (fmap mkOps repos)
   elkLog $ "Indexed " <> show (V.length repos) <> " repo(s)"
   where
-    mkOps (RepoName name) = BH.BulkIndex friIndex (BH.DocId name) (object [])
+    mkOps (RepoInitial (RepoName name) desc) =
+      BH.BulkIndex
+        friIndex
+        (BH.DocId name)
+        ( object ["description" .= riDesc desc]
+        )
 
 initialize :: (MonadThrow m, MonadIO m) => Query m ()
 initialize = do

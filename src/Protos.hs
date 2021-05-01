@@ -19,7 +19,7 @@ registerHandler ::
   IO (ServerResponse 'ServerStreaming RegisterResponse)
 registerHandler registerImpl (ServerWriterRequest _metadata (RegisterRequest username) sendResponse) = do
   putTextLn $ "GRPC: got user request: " <> toStrict username
-  registerImpl (toStrict username) cb
+  registerImpl (UserName $ toStrict username) cb
   pure (ServerWriterResponse mempty StatusOk (StatusDetails "ok"))
   where
     cb res = do
