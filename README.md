@@ -11,6 +11,7 @@ Favorite Repository Index
   - [Api Service](#api-structure)
   - [GitHub Queries](#github-queries)
   - [Database Queries](#database-queries)
+  - [Worker API](#client-api)
   - [Client API](#client-api)
   - [Proxy](#proxy)
   - [User Interface](#user-interface)
@@ -22,7 +23,7 @@ Favorite Repository Index
 
 # tl;dr
 
-This project implements a simple service named Favorite Repository Index (FRI).
+This project implements a simple service named Favorite Repository Index (FRI). The service let user registers by indexing their favorite repositories, then the service enable the user to perform full text search. When multiple users use the service, it can display the most popular repository amongs the registered users.
 
 The goal is to implement an incremental roadmap using architectural decision records ([ADR](https://adr.github.io)).
 
@@ -46,74 +47,21 @@ I'm pretty satisfied with the result, and I'm eager to share my approach with yo
 
 # The Challenge
 
-TODO: define the goal and challenge of monocle
+TODO: define the goal and the challenges of Monocle.
 
 
 <a id="roadmap"></a>
 
 # Roadmap
 
-TODO: map roadmap to commits
+> This roadmap is a work in progress. Once the project reachs a desirable state, each step will be mapped to a standalone commit.
 
 
 <a id="packages-management"></a>
 
 ## Packages Management
 
-```markdown
-# Choice of package manager
-
-## Context and Problem Statement
-
-We need to install and configure external dependencies to build and operate the service.
-We also needs a workflow to build and distribute the service application.
-
-## Considered Options
-
-- RPM package
-- Container image
-- Ansible role
-- Nix expression
-
-## Decision Outcome
-
-Chosen option: "Nix expression", because it comes out best (see below).
-
-### Positive Consequences
-
-- Reproducible, by pinning the dependencies we control the entire stack.
-- Mature ecosystem, nixpkgs features many packages.
-- Enable efficient distribution.
-
-### Negative Consequences
-
-- Require an extra language.
-- Nix introduces new issues.
-
-## Pros and Cons of the Options
-
-### RPM package
-
-- Good, because it is battle tested.
-- Good, because it respects the Linux Filesystem Hierarchy Standard (FHS).
-- Good, because it has strong community support.
-- Bad, because it requires energy to manage dependencies.
-
-### Container image
-
-- Good, because it is popular.
-- Bad, because it is inefficient and tedious to work with.
-
-### Ansible roles
-
-- Good, because it is simple.
-- Bad, because it is hard to make it idempotent or reproducable.
-
-## Nix expression
-
-- Good, because it is programable.
-- Bad, because the language is hard to use.
-```
+[Choice of package manager record](./doc/adr/choice-of-packages-manager.md)
 
 -   A shell environment with development tools installed:
 
@@ -123,11 +71,12 @@ $ nix-shell --pure
 /nix/store/6yf85zvdchma8khwa7gl4ng6h3b4yr9n-strace-5.11/bin/strace
 ```
 
--   A derivation to start a service:
+-   Ready to use command to operate the service:
 
 ```
-$ $(nix-build --attr db.start)
-Starting the database...
+$ fri-start
+[+] Starting the database...
+[+] Start the api...
 ```
 
 
@@ -135,9 +84,7 @@ Starting the database...
 
 ## Database
 
-```markdown
-ADR: https://github.com/change-metrics/monocle/blob/master/doc/adr/0002-choice-of-elasticsearch.md
-```
+[Choice of elasticsearch record](https://github.com/change-metrics/monocle/blob/master/doc/adr/0002-choice-of-elasticsearch.md)
 
 -   elasticsearch service deployment:
 
@@ -160,9 +107,7 @@ Deleting the database...
 
 ## Interfaces Definition
 
-```markdown
-ADR: https://github.com/change-metrics/monocle/issues/346
-```
+[Choice of protobuf record](https://github.com/change-metrics/monocle/blob/master/doc/adr/0010-choice-of-protobuf.md)
 
 -   protobuf definitions of the api: [fri.proto](./protos/fri.proto)
 
@@ -185,14 +130,12 @@ protoc -I=protos fri.proto --js_out=import_style=commonjs:javascript/src/ --grpc
 
 ## Api Service
 
-```markdown
-ADR: https://github.com/change-metrics/lentille/blob/main/doc/adr/0002-choice-of-language.md
-```
+[Choice of language record](https://github.com/change-metrics/lentille/blob/main/doc/adr/0002-choice-of-language.md)
 
 -   A package set with relude version 1.0:
 
 ```
-$ nix-shell --pure --command "ghc-pkg list relude"
+$ ghc-pkg list relude
     relude-1.0.0.1
 ```
 
@@ -206,10 +149,10 @@ Ok, five modules loaded.
 Api.run :: Int -> IO ()
 ```
 
--   A CLI to start the service
+-   A CLI to start the service:
 
 ```
-$ cabal run fri-api -- --elk-url localhost:9242 --port 8042
+$ cabal run fri-api -- --elk-url http://localhost:9242 --port 8042
 fri-api running on :8042
 ```
 
@@ -218,19 +161,19 @@ fri-api running on :8042
 
 ## GitHub Queries
 
--   A haskell module to define crawler function [FriGitHub](./src/FriGitHub.hs):
+-   A haskell module to define crawler functions ([Fri.GitHub](./src/Fri/GitHub.hs)):
 
 ```haskell
-getFavorites :: MonadIO m => UserName -> m [Repo]
+getFavorites :: MonadIO m => UserName -> Stream (Of RepoInitial) m ()
 ```
 
 -   REPL tutorial:
 
 ```haskell
-λ> FriGitHub.getFavorites "TristanCacqueray"
-[ Repo {repoName = "haskellfoundation/matchmaker", repoTopic = [], repoDescription = "Find your open-soulmate <\128156>"}
-, Repo {repoName = "Gabriel439/grace", repoTopic = [], repoDescription = "A ready-to-fork interpreted, typed, and functional language"}
-, ...]
+λ> S.print $ Fri.GitHub.getFavorites (UserName "TristanCacqueray")
+RepoInitial {riName = RepoName "haskellfoundation/matchmaker", riDescription = Just (RepoDescription {unDesc = "Find your open-soulmate <\128156>"})}
+RepoInitial {riName = RepoName "Gabriel439/grace", riDescription = Just (RepoDescription {unDesc = "A ready-to-fork interpreted, typed, and functional language"})}
+...
 ```
 
 
@@ -238,19 +181,41 @@ getFavorites :: MonadIO m => UserName -> m [Repo]
 
 ## Database Queries
 
--   TODO: A document mapping
-
--   TODO: A haskell module to define repositories index and search function:
+-   A haskell module to define elasticsearch query ([Fri.Query](./src/Fri/Query.hs)):
 
 ```haskell
-indexRepos :: MonadBH m => [Repo] -> m ()
-searchRepos :: MonadBH m => Username -> m [Repo]
+addRepos :: (MonadThrow m, MonadIO m) => V.Vector RepoInitial -> Query m ()
+```
+
+-   REPL tutorial:
+
+```haskell
+λ> newClient "http://localhost:9242" >>= flip runQuery getIndices
+[IndexName "fri.0"]
+```
+
+
+<a id="client-api"></a>
+
+## Worker API
+
+-   A haskell module to define worker ([Fri.Worker](./src/Fri/Worker.hs)):
+
+```haskell
+-- TODO
+indexTags :: undefined
 ```
 
 -   REPL tutorial:
 
 ```haskell
 λ> TODO
+```
+
+-   A CLI to start the service:
+
+```
+$ cabal run fri-worker -- --api-endpoint localhost:8042
 ```
 
 
@@ -271,9 +236,7 @@ searchRepos :: MonadBH m => Username -> m [Repo]
 
 ## Proxy
 
-```markdown
-ADR: https://github.com/change-metrics/monocle/issues/345
-```
+[Choice of envoyproxy record](https://github.com/change-metrics/monocle/issues/345)
 
 -   envoy service deployment:
 

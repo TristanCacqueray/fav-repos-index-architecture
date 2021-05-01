@@ -62,6 +62,9 @@ initialize = do
   where
     indexSettings = BH.IndexSettings (BH.ShardCount 1) (BH.ReplicaCount 0)
 
+getIndices :: (MonadThrow m, MonadIO m) => Query m [BH.IndexName]
+getIndices = BH.listIndices
+
 -------------------------------------------------------------------------------
 -- Low level helper functions
 -------------------------------------------------------------------------------

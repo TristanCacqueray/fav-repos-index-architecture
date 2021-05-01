@@ -133,6 +133,13 @@ let
   githubCacheStart = pkgs.writeScriptBin "gh-cache-start"
     "${hsPkgs.caching-reverse-proxy}/bin/caching-reverse-proxy --path /srv/api.github.com --port 8043 --dest-host api.github.com --dest-port 443";
 
+  friStart = pkgs.writeScriptBin "fri-start" ''
+    echo "TODO: start processes in tmux panes or gnome-shell tabs"
+    echo "[+] Starting the database..."
+    echo ${elkStart}
+    echo "[+] Start the api..."
+  '';
+
 in {
   # Backend
   backend = hsPkgs.fri-backend;
@@ -159,6 +166,7 @@ in {
       githubCacheStart
       protobufCodegen
       envoyStart
+      friStart
     ];
   };
 }
