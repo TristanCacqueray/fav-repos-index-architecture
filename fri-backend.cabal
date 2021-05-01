@@ -36,10 +36,10 @@ library
                      , streaming                  ^>= 0.2
                      , vector                     < 0.13
   hs-source-dirs:      src
-  exposed-modules:     Api
-                       Types
-                       Query
-                       FriGitHub
+  exposed-modules:     Fri.Api
+                       Fri.Types
+                       Fri.Query
+                       Fri.GitHub
   other-modules:       Protos
                      , Protos.Fri
 

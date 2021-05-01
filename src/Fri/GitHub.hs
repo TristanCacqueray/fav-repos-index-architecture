@@ -3,15 +3,15 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 
 -- | A module to manage github interface
-module FriGitHub where
+module Fri.GitHub where
 
 import qualified Data.Text as T
 import qualified Data.Vector as V
+import Fri.Types
 import qualified GitHub
 import Relude
 import Streaming (Of, Stream)
 import qualified Streaming.Prelude as S
-import Types
 
 -- TODO: use Streaming, add ratelimit throttle...
 getFavorites :: MonadIO m => UserName -> Stream (Of RepoInitial) m ()

@@ -3,16 +3,16 @@
 
 -- | A module to manage elasticseach query with bloodhound
 -- https://github.com/bitemyapp/bloodhound
-module Query where
+module Fri.Query where
 
 import Control.Monad.Catch (MonadThrow)
 import Data.Aeson (ToJSON (..), object, (.=))
 import Data.Aeson.Types (Pair)
 import qualified Data.Vector as V
 import qualified Database.Bloodhound as BH
+import Fri.Types
 import Network.HTTP.Client (defaultManagerSettings, newManager)
 import Relude
-import Types
 
 friIndex :: BH.IndexName
 friIndex = BH.IndexName "fri.0"

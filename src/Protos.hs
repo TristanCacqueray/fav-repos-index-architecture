@@ -8,10 +8,10 @@
 -- | Protobuf implementation layer
 module Protos (runService) where
 
+import Fri.Types
 import Network.GRPC.HighLevel.Generated
 import Protos.Fri
 import Relude
-import Types
 
 registerHandler ::
   RegisterImpl IO ->

@@ -134,7 +134,7 @@ in {
   shell = hsPkgs.shellFor {
     packages = p: [ p.fri-backend ];
     buildInputs =
-      [ hsPkgs.hlint hsPkgs.cabal-install hsPkgs.haskell-language-server ];
+      [ hsPkgs.hlint hsPkgs.cabal-install hsPkgs.ghcid hsPkgs.haskell-language-server ];
     propagatedBuildInputs = [
       pkgs.strace
       elk

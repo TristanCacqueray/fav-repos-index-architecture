@@ -1,5 +1,5 @@
 -- | The data types
-module Types where
+module Fri.Types where
 
 import qualified Protos.Fri as PB
 import Relude

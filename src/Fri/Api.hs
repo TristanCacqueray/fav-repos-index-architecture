@@ -2,12 +2,12 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 
 -- | The api functions
-module Api (run) where
+module Fri.Api (run) where
 
+import Fri.Types
 import Protos (runService)
 import Protos.Fri (Repo (..))
 import Relude
-import Types
 
 register :: MonadIO m => RegisterImpl m
 register username sendResult = do
