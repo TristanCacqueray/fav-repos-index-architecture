@@ -5,6 +5,7 @@
 module Api (run) where
 
 import Protos (runService)
+import Protos.Fri (Repo (..))
 import Relude
 import Types
 
@@ -14,8 +15,8 @@ register username sendResult = do
   sendResult (Left "welcome!")
   where
     fakeRepos =
-      [ Repo "testy" ["haskell"] "a test project",
-        Repo "testo" ["rescript", "html"] "a test client"
+      [ Repo "testy" ["haskell"] "a test project" [],
+        Repo "testo" ["rescript", "html"] "a test client" []
       ]
 
 run :: Int -> Text -> IO ()
