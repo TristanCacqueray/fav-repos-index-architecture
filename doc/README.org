@@ -1,4 +1,3 @@
-# -*- org-confirm-babel-evaluate: 'nil ; -*-
 #+title:  Favorite Repository Index
 #+subtitle: A distributed service architecture powered by nix and gRPC-haskell
 #+author: Tristan de Cacqueray

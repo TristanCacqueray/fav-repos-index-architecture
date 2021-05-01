@@ -54,10 +54,15 @@ let
   elkConf = pkgs.writeTextFile {
     name = "elasticsearch.yml";
     text = ''
+      cluster.name: fri-elk
       http.port: ${toString elk-port}
+      discovery.type: single-node
+      network.host: 0.0.0.0
     '';
   };
   elkStart = pkgs.writeScriptBin "elk-start" ''
+    # todo: only set max_map_count when necessary
+    ${pkgs.sudo}/bin/sudo sysctl -w vm.max_map_count=262144
     set -ex
     export ES_HOME=${elk-home}
     mkdir -p $ES_HOME/logs $ES_HOME/data
