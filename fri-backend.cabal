@@ -22,14 +22,18 @@ common common-options
 library
   import:              common-options
   build-depends:       base                       < 5
-                     , bloodhound                 >= 0.16.0.0
+                     , aeson                      ^>=1.5
+                     , bloodhound                 ^>= 0.17
                      , containers                 < 0.7
+                     , exceptions                 ^>= 0.10
                      , deepseq                    < 1.5
                      , github                     ^>= 0.26
                      , grpc-haskell               >= 0.1.0
+                     , http-client                ^>= 0.6
                      , proto3-suite               >= 0.4.2.0
                      , proto3-wire                >= 1.2.0
                      , relude                     > 1.0.0.0
+                     , streaming                  ^>= 0.2
                      , vector                     < 0.13
   hs-source-dirs:      src
   exposed-modules:     Api
