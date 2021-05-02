@@ -22,7 +22,8 @@ common common-options
 library
   import:              common-options
   build-depends:       base                       < 5
-                     , aeson                      ^>=1.5
+                     , aeson                      ^>= 1.5
+                     , aeson-casing               ^>= 0.2
                      , bloodhound                 ^>= 0.17
                      , containers                 < 0.7
                      , exceptions                 ^>= 0.10
@@ -34,6 +35,7 @@ library
                      , proto3-wire                >= 1.2.0
                      , relude                     > 1.0.0.0
                      , streaming                  ^>= 0.2
+                     , time
                      , vector                     < 0.13
   hs-source-dirs:      src
   exposed-modules:     Fri.Api

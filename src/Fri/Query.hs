@@ -8,6 +8,7 @@ module Fri.Query where
 import Control.Monad.Catch (MonadThrow)
 import Data.Aeson (ToJSON (..), object, (.=))
 import Data.Aeson.Types (Pair)
+import Data.Time.Clock (getCurrentTime)
 import qualified Data.Vector as V
 import qualified Database.Bloodhound as BH
 import Fri.Types
@@ -18,6 +19,20 @@ friIndex :: BH.IndexName
 friIndex = BH.IndexName "fri.0"
 
 data RepoMapping = RepoMapping deriving stock (Eq, Show)
+
+keywords :: [Text] -> [Pair]
+keywords = map (setPropType "keywords")
+
+dateProp :: Text -> Pair
+dateProp name =
+  name
+    .= object
+      [ "type" .= ("date" :: Text),
+        "format" .= ("date_time_no_millis" :: Text)
+      ]
+
+setPropType :: Text -> Text -> Pair
+setPropType propType prop = prop .= object ["type" .= propType]
 
 -- | The Repo document mapping
 -- >>> putTextLn . decodeUtf8 . encode $ RepoMapping
@@ -30,10 +45,6 @@ instance ToJSON RepoMapping where
           <> [ setPropType "description" "text",
                setPropType "starts" "integer"
              ]
-      keywords :: [Text] -> [Pair]
-      keywords = map (setPropType "keywords")
-      setPropType :: Text -> Text -> Pair
-      setPropType propType prop = prop .= object ["type" .= propType]
 
 -- | Add new repos
 -- >>> :{
@@ -52,13 +63,47 @@ addRepos repos = do
         ( object ["description" .= riDesc desc]
         )
 
+userIndex :: BH.IndexName
+userIndex = BH.IndexName "user.0"
+
+data UserMapping = UserMapping deriving stock (Eq, Show)
+
+-- | The User document mapping
+instance ToJSON UserMapping where
+  toJSON UserMapping = object ["properties" .= object props]
+    where
+      props =
+        [ setPropType "favorites_count" "integer",
+          dateProp "favorites_count_updated_at"
+        ]
+
+createUser :: (MonadThrow m, MonadIO m) => UserName -> Query m ()
+createUser (UserName username) = do
+  now <- liftIO getCurrentTime
+  checkResp "adding user"
+    <$> BH.indexDocument userIndex BH.defaultIndexDocumentSettings (User 0 (IsoTime now)) (BH.DocId username)
+
+getUser :: (MonadThrow m, MonadIO m) => UserName -> Query m (Maybe User)
+getUser (UserName username) = do
+  rawResp <- BH.getDocument userIndex (BH.DocId username)
+  print rawResp
+  if BH.isSuccess rawResp
+    then do
+      resp <- BH.parseEsResponse rawResp
+      case resp of
+        Left _ -> pure Nothing
+        Right x -> case BH.foundResult x of
+          Just u -> pure . Just $ BH._source u
+          Nothing -> pure Nothing
+    else pure Nothing
+
 initialize :: (MonadThrow m, MonadIO m) => Query m ()
 initialize = do
   putTextLn "Initalizing indexes"
   checkResp "index creation" <$> BH.createIndex indexSettings friIndex
   checkResp "mapping" <$> BH.putMapping friIndex RepoMapping
-  indices <- BH.listIndices
-  elkLog $ "Indexes: " <> show indices
+  checkResp "user index creation" <$> BH.createIndex indexSettings userIndex
+  checkResp "mapping" <$> BH.putMapping userIndex UserMapping
   where
     indexSettings = BH.IndexSettings (BH.ShardCount 1) (BH.ReplicaCount 0)
 

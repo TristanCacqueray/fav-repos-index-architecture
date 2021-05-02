@@ -16,7 +16,7 @@ import qualified Streaming.Prelude as S
 -- TODO: use Streaming, add ratelimit throttle...
 getFavorites :: MonadIO m => UserName -> Stream (Of RepoInitial) m ()
 getFavorites (UserName username) = do
-  repos <- runRequest' "get repo" request
+  repos <- runRequest' "get repo" (request 0)
   S.each $ fmap toInitialRepo repos
   where
     toInitialRepo :: GitHub.Repo -> RepoInitial
@@ -25,7 +25,11 @@ getFavorites (UserName username) = do
           name = GitHub.untagName ownerName <> "/" <> GitHub.untagName (GitHub.repoName ghr)
           desc = GitHub.repoDescription ghr
        in RepoInitial (RepoName name) (RepoDescription <$> desc)
-    request = GitHub.reposStarredByR (GitHub.mkOwnerName username) 1
+    request :: Int -> GitHub.Request m (V.Vector GitHub.Repo)
+    request page =
+      GitHub.query
+        ["users", username, "starred"]
+        (fmap Just <$> [("sort", "created"), ("direction", "asc"), ("per_page", "100"), ("page", show page)])
 
 getTags :: MonadIO m => RepoName -> m (V.Vector RepoTags)
 getTags (RepoName fullRepoName) = do
