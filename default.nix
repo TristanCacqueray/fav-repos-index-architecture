@@ -103,6 +103,7 @@ let
     dontStrip = true;
     dontInstall = true;
   };
+  renameScript = ../../change-metrics/monocle/codegen/rename_bs_module.py;
   protobufCodegen = pkgs.writeScriptBin "protobuf-codegen" ''
     set -x
     echo "# Haskell bindings"
@@ -112,6 +113,9 @@ let
     ${python-grpc}/bin/python -m grpc_tools.protoc -Iprotos --python_out=python/ --grpc_python_out=python/ fri.proto
     echo "# Javascript bindings using ${grpc-web}"
     ${pkgs.protobuf}/bin/protoc -I=protos fri.proto --js_out=import_style=commonjs:javascript/src/ --grpc-web_out=import_style=commonjs,mode=grpcwebtext:javascript/src/
+    echo "# ReScript bindings"
+    ${pkgs.ocamlPackages.ocaml-protoc}/bin/ocaml-protoc -bs -ml_out javascript/src/messages/ protos/fri.proto
+    ${pkgs.python3}/bin/python ${renameScript} ./javascript/src/messages/
     echo Done.
   '';
 
@@ -156,6 +160,7 @@ in {
     propagatedBuildInputs = [
       pkgs.strace
       pkgs.esbuild
+      pkgs.ocamlPackages.ocaml-protoc
       elk
       envoy
       python-grpc
