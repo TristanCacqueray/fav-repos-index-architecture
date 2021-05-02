@@ -1,3 +1,4 @@
-/src/Protos/* linguist-generated=true
+/src/Fri/Messages.hs linguist-generated=true
+/src/Fri/Services.hs linguist-generated=true
 /javascript/src/*_pb.js linguist-generated=true
-/python/*_pb2* linguist-generated=true
+/python/fri/* linguist-generated=true

@@ -6,11 +6,12 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 
 -- | Protobuf implementation layer
-module Protos (runService) where
+module Fri.RpcApi (runService) where
 
+import Fri.Messages
+import Fri.Services
 import Fri.Types
 import Network.GRPC.HighLevel.Generated
-import Protos.Fri
 import Relude
 
 registerHandler ::

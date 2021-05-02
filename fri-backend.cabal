@@ -40,8 +40,9 @@ library
                        Fri.Types
                        Fri.Query
                        Fri.GitHub
-  other-modules:       Protos
-                     , Protos.Fri
+  other-modules:       Fri.Services
+                     , Fri.Messages
+                     , Fri.RpcApi
 
 executable fri-api
   import:              common-options

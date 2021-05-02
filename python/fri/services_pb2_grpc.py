@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import fri_pb2 as fri__pb2
+from fri import messages_pb2 as fri_dot_messages__pb2
 
 
 class ServiceStub(object):
@@ -16,14 +16,14 @@ class ServiceStub(object):
             channel: A grpc.Channel.
         """
         self.Register = channel.unary_stream(
-                '/fri.v1.Service/Register',
-                request_serializer=fri__pb2.RegisterRequest.SerializeToString,
-                response_deserializer=fri__pb2.RegisterResponse.FromString,
+                '/frirpc.Service/Register',
+                request_serializer=fri_dot_messages__pb2.RegisterRequest.SerializeToString,
+                response_deserializer=fri_dot_messages__pb2.RegisterResponse.FromString,
                 )
         self.Search = channel.unary_stream(
-                '/fri.v1.Service/Search',
-                request_serializer=fri__pb2.SearchRequest.SerializeToString,
-                response_deserializer=fri__pb2.SearchResponse.FromString,
+                '/frirpc.Service/Search',
+                request_serializer=fri_dot_messages__pb2.SearchRequest.SerializeToString,
+                response_deserializer=fri_dot_messages__pb2.SearchResponse.FromString,
                 )
 
 
@@ -48,17 +48,17 @@ def add_ServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Register': grpc.unary_stream_rpc_method_handler(
                     servicer.Register,
-                    request_deserializer=fri__pb2.RegisterRequest.FromString,
-                    response_serializer=fri__pb2.RegisterResponse.SerializeToString,
+                    request_deserializer=fri_dot_messages__pb2.RegisterRequest.FromString,
+                    response_serializer=fri_dot_messages__pb2.RegisterResponse.SerializeToString,
             ),
             'Search': grpc.unary_stream_rpc_method_handler(
                     servicer.Search,
-                    request_deserializer=fri__pb2.SearchRequest.FromString,
-                    response_serializer=fri__pb2.SearchResponse.SerializeToString,
+                    request_deserializer=fri_dot_messages__pb2.SearchRequest.FromString,
+                    response_serializer=fri_dot_messages__pb2.SearchResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'fri.v1.Service', rpc_method_handlers)
+            'frirpc.Service', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -78,9 +78,9 @@ class Service(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/fri.v1.Service/Register',
-            fri__pb2.RegisterRequest.SerializeToString,
-            fri__pb2.RegisterResponse.FromString,
+        return grpc.experimental.unary_stream(request, target, '/frirpc.Service/Register',
+            fri_dot_messages__pb2.RegisterRequest.SerializeToString,
+            fri_dot_messages__pb2.RegisterResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -95,8 +95,8 @@ class Service(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/fri.v1.Service/Search',
-            fri__pb2.SearchRequest.SerializeToString,
-            fri__pb2.SearchResponse.FromString,
+        return grpc.experimental.unary_stream(request, target, '/frirpc.Service/Search',
+            fri_dot_messages__pb2.SearchRequest.SerializeToString,
+            fri_dot_messages__pb2.SearchResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

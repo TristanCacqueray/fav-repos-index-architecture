@@ -3,8 +3,8 @@
 
 import grpc
 # Generated fri client with grpc_tools
-import fri_pb2 as Fri
-import fri_pb2_grpc as FriClient
+import fri.messages_pb2 as Fri
+import fri.services_pb2_grpc as FriClient
 
 
 def run():

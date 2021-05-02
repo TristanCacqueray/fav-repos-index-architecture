@@ -3,7 +3,7 @@
 
 syntax = "proto3";
 
-package fri.v1;
+package fripb;
 
 // Model
 message Repo {
@@ -32,10 +32,4 @@ message SearchRequest {
 message SearchResponse {
   int32 score = 1;
   Repo repo   = 2;
-}
-
-// API
-service Service {
-  rpc Register(RegisterRequest) returns (stream RegisterResponse) {};
-  rpc Search(SearchRequest) returns (stream SearchResponse) {};
 }

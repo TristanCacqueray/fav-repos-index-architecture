@@ -107,14 +107,16 @@ let
   protobufCodegen = pkgs.writeScriptBin "protobuf-codegen" ''
     set -x
     echo "# Haskell bindings"
-    ${hsPkgs.proto3-suite}/bin/compile-proto-file --proto protos/fri.proto --out src/
-    ${pkgs.ormolu}/bin/ormolu -i src/Protos/Fri.hs
+    ${hsPkgs.proto3-suite}/bin/compile-proto-file --includeDir protos/ --proto fri/messages.proto --out src/
+    ${hsPkgs.proto3-suite}/bin/compile-proto-file --includeDir protos/ --proto fri/services.proto --out src/
+    ${pkgs.ormolu}/bin/ormolu -i src/Fri/Messages.hs
+    ${pkgs.ormolu}/bin/ormolu -i src/Fri/Services.hs
     echo "# Python bindings"
-    ${python-grpc}/bin/python -m grpc_tools.protoc -Iprotos --python_out=python/ --grpc_python_out=python/ fri.proto
+    ${python-grpc}/bin/python -m grpc_tools.protoc -Iprotos --python_out=python/ --grpc_python_out=python/ fri/messages.proto fri/services.proto
     echo "# Javascript bindings using ${grpc-web}"
-    ${pkgs.protobuf}/bin/protoc -I=protos fri.proto --js_out=import_style=commonjs:javascript/src/ --grpc-web_out=import_style=commonjs,mode=grpcwebtext:javascript/src/
+    ${pkgs.protobuf}/bin/protoc -I=protos fri/messages.proto fri/services.proto --js_out=import_style=commonjs:javascript/src/ --grpc-web_out=import_style=commonjs,mode=grpcwebtext:javascript/src/
     echo "# ReScript bindings"
-    ${pkgs.ocamlPackages.ocaml-protoc}/bin/ocaml-protoc -bs -ml_out javascript/src/messages/ protos/fri.proto
+    ${pkgs.ocamlPackages.ocaml-protoc}/bin/ocaml-protoc -bs -ml_out javascript/src/messages/ protos/fri/messages.proto
     ${pkgs.python3}/bin/python ${renameScript} ./javascript/src/messages/
     echo Done.
   '';

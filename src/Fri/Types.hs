@@ -1,7 +1,7 @@
 -- | The data types
 module Fri.Types where
 
-import qualified Protos.Fri as PB
+import qualified Fri.Messages as PB
 import Relude
 
 type RegisterImpl m = UserName -> (Either Text PB.Repo -> m ()) -> m ()

@@ -7,10 +7,10 @@ module Fri.Api (run) where
 import Control.Monad.Catch (MonadThrow)
 import qualified Data.Vector as V
 import Fri.GitHub (getFavorites)
+import qualified Fri.Messages as PB
 import Fri.Query (Client, addRepos, newClient, runQuery)
+import Fri.RpcApi (runService)
 import Fri.Types
-import Protos (runService)
-import qualified Protos.Fri as PB
 import Relude
 import qualified Streaming.Prelude as S
 
