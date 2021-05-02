@@ -15,5 +15,6 @@
 (defun start ()
   (fri-startp "elk")
   (fri-startp "gh-cache")
+  (fri-startp "envoy")
   (fri-repl))
 (start)

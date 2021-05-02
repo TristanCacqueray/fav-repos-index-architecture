@@ -1,5 +1,5 @@
 /**
- * @fileoverview gRPC-Web generated client stub for fri.v1
+ * @fileoverview gRPC-Web generated client stub for frirpc
  * @enhanceable
  * @public
  */
@@ -15,9 +15,10 @@
 const grpc = {};
 grpc.web = require('grpc-web');
 
+
+var fri_messages_pb = require('../fri/messages_pb.js')
 const proto = {};
-proto.fri = {};
-proto.fri.v1 = require('./fri_pb.js');
+proto.frirpc = require('./services_pb.js');
 
 /**
  * @param {string} hostname
@@ -27,7 +28,7 @@ proto.fri.v1 = require('./fri_pb.js');
  * @struct
  * @final
  */
-proto.fri.v1.ServiceClient =
+proto.frirpc.ServiceClient =
     function(hostname, credentials, options) {
   if (!options) options = {};
   options['format'] = 'text';
@@ -53,7 +54,7 @@ proto.fri.v1.ServiceClient =
  * @struct
  * @final
  */
-proto.fri.v1.ServicePromiseClient =
+proto.frirpc.ServicePromiseClient =
     function(hostname, credentials, options) {
   if (!options) options = {};
   options['format'] = 'text';
@@ -74,55 +75,55 @@ proto.fri.v1.ServicePromiseClient =
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.fri.v1.RegisterRequest,
- *   !proto.fri.v1.RegisterResponse>}
+ *   !proto.fripb.RegisterRequest,
+ *   !proto.fripb.RegisterResponse>}
  */
 const methodDescriptor_Service_Register = new grpc.web.MethodDescriptor(
-  '/fri.v1.Service/Register',
+  '/frirpc.Service/Register',
   grpc.web.MethodType.SERVER_STREAMING,
-  proto.fri.v1.RegisterRequest,
-  proto.fri.v1.RegisterResponse,
+  fri_messages_pb.RegisterRequest,
+  fri_messages_pb.RegisterResponse,
   /**
-   * @param {!proto.fri.v1.RegisterRequest} request
+   * @param {!proto.fripb.RegisterRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.fri.v1.RegisterResponse.deserializeBinary
+  fri_messages_pb.RegisterResponse.deserializeBinary
 );
 
 
 /**
  * @const
  * @type {!grpc.web.AbstractClientBase.MethodInfo<
- *   !proto.fri.v1.RegisterRequest,
- *   !proto.fri.v1.RegisterResponse>}
+ *   !proto.fripb.RegisterRequest,
+ *   !proto.fripb.RegisterResponse>}
  */
 const methodInfo_Service_Register = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.fri.v1.RegisterResponse,
+  fri_messages_pb.RegisterResponse,
   /**
-   * @param {!proto.fri.v1.RegisterRequest} request
+   * @param {!proto.fripb.RegisterRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.fri.v1.RegisterResponse.deserializeBinary
+  fri_messages_pb.RegisterResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.fri.v1.RegisterRequest} request The request proto
+ * @param {!proto.fripb.RegisterRequest} request The request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @return {!grpc.web.ClientReadableStream<!proto.fri.v1.RegisterResponse>}
+ * @return {!grpc.web.ClientReadableStream<!proto.fripb.RegisterResponse>}
  *     The XHR Node Readable Stream
  */
-proto.fri.v1.ServiceClient.prototype.register =
+proto.frirpc.ServiceClient.prototype.register =
     function(request, metadata) {
   return this.client_.serverStreaming(this.hostname_ +
-      '/fri.v1.Service/Register',
+      '/frirpc.Service/Register',
       request,
       metadata || {},
       methodDescriptor_Service_Register);
@@ -130,16 +131,16 @@ proto.fri.v1.ServiceClient.prototype.register =
 
 
 /**
- * @param {!proto.fri.v1.RegisterRequest} request The request proto
+ * @param {!proto.fripb.RegisterRequest} request The request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @return {!grpc.web.ClientReadableStream<!proto.fri.v1.RegisterResponse>}
+ * @return {!grpc.web.ClientReadableStream<!proto.fripb.RegisterResponse>}
  *     The XHR Node Readable Stream
  */
-proto.fri.v1.ServicePromiseClient.prototype.register =
+proto.frirpc.ServicePromiseClient.prototype.register =
     function(request, metadata) {
   return this.client_.serverStreaming(this.hostname_ +
-      '/fri.v1.Service/Register',
+      '/frirpc.Service/Register',
       request,
       metadata || {},
       methodDescriptor_Service_Register);
@@ -149,55 +150,55 @@ proto.fri.v1.ServicePromiseClient.prototype.register =
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.fri.v1.SearchRequest,
- *   !proto.fri.v1.SearchResponse>}
+ *   !proto.fripb.SearchRequest,
+ *   !proto.fripb.SearchResponse>}
  */
 const methodDescriptor_Service_Search = new grpc.web.MethodDescriptor(
-  '/fri.v1.Service/Search',
+  '/frirpc.Service/Search',
   grpc.web.MethodType.SERVER_STREAMING,
-  proto.fri.v1.SearchRequest,
-  proto.fri.v1.SearchResponse,
+  fri_messages_pb.SearchRequest,
+  fri_messages_pb.SearchResponse,
   /**
-   * @param {!proto.fri.v1.SearchRequest} request
+   * @param {!proto.fripb.SearchRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.fri.v1.SearchResponse.deserializeBinary
+  fri_messages_pb.SearchResponse.deserializeBinary
 );
 
 
 /**
  * @const
  * @type {!grpc.web.AbstractClientBase.MethodInfo<
- *   !proto.fri.v1.SearchRequest,
- *   !proto.fri.v1.SearchResponse>}
+ *   !proto.fripb.SearchRequest,
+ *   !proto.fripb.SearchResponse>}
  */
 const methodInfo_Service_Search = new grpc.web.AbstractClientBase.MethodInfo(
-  proto.fri.v1.SearchResponse,
+  fri_messages_pb.SearchResponse,
   /**
-   * @param {!proto.fri.v1.SearchRequest} request
+   * @param {!proto.fripb.SearchRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.fri.v1.SearchResponse.deserializeBinary
+  fri_messages_pb.SearchResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.fri.v1.SearchRequest} request The request proto
+ * @param {!proto.fripb.SearchRequest} request The request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @return {!grpc.web.ClientReadableStream<!proto.fri.v1.SearchResponse>}
+ * @return {!grpc.web.ClientReadableStream<!proto.fripb.SearchResponse>}
  *     The XHR Node Readable Stream
  */
-proto.fri.v1.ServiceClient.prototype.search =
+proto.frirpc.ServiceClient.prototype.search =
     function(request, metadata) {
   return this.client_.serverStreaming(this.hostname_ +
-      '/fri.v1.Service/Search',
+      '/frirpc.Service/Search',
       request,
       metadata || {},
       methodDescriptor_Service_Search);
@@ -205,21 +206,21 @@ proto.fri.v1.ServiceClient.prototype.search =
 
 
 /**
- * @param {!proto.fri.v1.SearchRequest} request The request proto
+ * @param {!proto.fripb.SearchRequest} request The request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @return {!grpc.web.ClientReadableStream<!proto.fri.v1.SearchResponse>}
+ * @return {!grpc.web.ClientReadableStream<!proto.fripb.SearchResponse>}
  *     The XHR Node Readable Stream
  */
-proto.fri.v1.ServicePromiseClient.prototype.search =
+proto.frirpc.ServicePromiseClient.prototype.search =
     function(request, metadata) {
   return this.client_.serverStreaming(this.hostname_ +
-      '/fri.v1.Service/Search',
+      '/frirpc.Service/Search',
       request,
       metadata || {},
       methodDescriptor_Service_Search);
 };
 
 
-module.exports = proto.fri.v1;
+module.exports = proto.frirpc;
 

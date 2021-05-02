@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@patternfly/react-core": "^4.115.2",
     "@rescript/react": "^0.10.2",
+    "@softwarefactory-project/re-patternfly": "^2.0.2",
     "bs-ocaml-protoc-json": "^0.1.3",
     "bs-platform": "^9.0.2",
     "google-protobuf": "^3.12.2",
@@ -21,7 +23,7 @@
     "live": "concurrently --names www,res,esb -c green.bold,red.bold,blue.bold pnpm:dev-server pnpm:re:watch pnpm:es:watch",
     "build": "pnpm run clean && mkdir -p build && pnpm run re:build && pnpm run es:build -- --minify --define:process.env.NODE_ENV='\"production\"'",
     "dev-server": "live-server --entry-file=index.html --host=localhost --port=3000 --quiet ./www/",
-    "es:build": "esbuild src/Index.bs.js --outfile=www/dist/bundle.js --bundle --sourcemap --target=chrome80,firefox72,safari13,edge80 --define:process.env.NODE_ENV='\"development\"'",
+    "es:build": "esbuild src/Index.bs.js --outfile=www/dist/bundle.js --bundle --sourcemap --target=chrome80,firefox72,safari13,edge80 --loader:.eof=file --loader:.eot=file --loader:.ttf=file --loader:.woff=file --loader:.woff2=file --loader:.svg=file --loader:.jpg=file --define:process.env.NODE_ENV='\"development\"'",
     "es:clean": "rm -Rf ./build/",
     "es:watch": "pnpm es:build -- --watch --color=true",
     "re:build": "bsb -make-world",

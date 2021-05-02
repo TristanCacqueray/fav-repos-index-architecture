@@ -1,4 +1,4 @@
-(** fri.proto Types *)
+(** messages.proto Types *)
 
 
 

@@ -1,7 +1,9 @@
 lockfileVersion: 5.3
 
 specifiers:
+  '@patternfly/react-core': ^4.115.2
   '@rescript/react': ^0.10.2
+  '@softwarefactory-project/re-patternfly': ^2.0.2
   bs-ocaml-protoc-json: ^0.1.3
   bs-platform: ^9.0.2
   concurrently: ^6.0.2
@@ -13,7 +15,9 @@ specifiers:
   react-dom: ^16.13.1
 
 dependencies:
+  '@patternfly/react-core': 4.115.2_react-dom@16.14.0+react@16.14.0
   '@rescript/react': 0.10.2_9a8b141f6a485c8f22459d47b9fd8b83
+  '@softwarefactory-project/re-patternfly': 2.0.2_9a8b141f6a485c8f22459d47b9fd8b83
   bs-ocaml-protoc-json: 0.1.3
   bs-platform: 9.0.2
   google-protobuf: 3.15.8
@@ -46,6 +50,41 @@ packages:
       js-tokens: 4.0.0
     dev: true
 
+  /@patternfly/react-core/4.115.2_react-dom@16.14.0+react@16.14.0:
+    resolution: {integrity: sha512-lnA+WmTQ0IyJIuSSUH0mjMUujAb6sYGNFMwkGDy4BpJjeu0aredVEmM0kAe/rFAurjSen/JpOhET2V3NiMGKtA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0
+      react-dom: ^16.8.0 || ^17.0.0
+    dependencies:
+      '@patternfly/react-icons': 4.10.2_react-dom@16.14.0+react@16.14.0
+      '@patternfly/react-styles': 4.10.2
+      '@patternfly/react-tokens': 4.11.3
+      focus-trap: 6.2.2
+      react: 16.14.0
+      react-dom: 16.14.0_react@16.14.0
+      react-dropzone: 9.0.0_react@16.14.0
+      tippy.js: 5.1.2
+      tslib: 1.13.0
+    dev: false
+
+  /@patternfly/react-icons/4.10.2_react-dom@16.14.0+react@16.14.0:
+    resolution: {integrity: sha512-mSkBRaEFukpaAoLDyd3nI+6Cj0z2/5DgJTA2i7By/UW1wJifKnBWW8NRO2SsJQVQIUtuuAunjUrjzKHdcxs5IQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0
+      react-dom: ^16.8.0 || ^17.0.0
+    dependencies:
+      react: 16.14.0
+      react-dom: 16.14.0_react@16.14.0
+    dev: false
+
+  /@patternfly/react-styles/4.10.2:
+    resolution: {integrity: sha512-cGvDFAISGrt+RAkX5NVyILCjWV1l9PCUpnMq6v4/6jBJOEHTBnRjaIGa92dw3OrLh407cBOIC0ugweRnocRmPw==}
+    dev: false
+
+  /@patternfly/react-tokens/4.11.3:
+    resolution: {integrity: sha512-7VbmT+aOwxk1DYzwer+wZgcbvkSsUUTKMKJDzhMvm5xi9nDeW8qI7laxQbWC9PDfsI5tiPxI2+BSuHnZpV/eRg==}
+    dev: false
+
   /@rescript/react/0.10.2_9a8b141f6a485c8f22459d47b9fd8b83:
     resolution: {integrity: sha512-Qe21P4WnrmrbhbEMQ4dpaXC1/iMMc7JmqjuSpZouSP+s41K5dCXUGY9sds30gajU74lSfJdG2PzSDYcNAcDyVA==}
     peerDependencies:
@@ -56,6 +95,16 @@ packages:
       bs-platform: 9.0.2
       react: 16.14.0
       react-dom: 16.14.0_react@16.14.0
+    dev: false
+
+  /@softwarefactory-project/re-patternfly/2.0.2_9a8b141f6a485c8f22459d47b9fd8b83:
+    resolution: {integrity: sha512-xwtoVIbmn8HEqwMBbVWvC9DoIWwlr8JW+LWRaeiVPCkBDL9OjSd0YT9lTAVngqVvdmq72o8VKGIuNKqBlrKJGg==}
+    dependencies:
+      '@rescript/react': 0.10.2_9a8b141f6a485c8f22459d47b9fd8b83
+    transitivePeerDependencies:
+      - bs-platform
+      - react
+      - react-dom
     dev: false
 
   /@types/normalize-package-data/2.4.0:
@@ -142,6 +191,13 @@ packages:
     engines: {node: '>= 4.5.0'}
     hasBin: true
     dev: true
+
+  /attr-accept/1.1.3:
+    resolution: {integrity: sha512-iT40nudw8zmCweivz6j58g+RT33I4KbaIvRUhjNmDwO2WmsQUxFEZZYZ5w3vXe5x5MX9D7mfvA/XaLOZYFR9EQ==}
+    engines: {node: '>=4'}
+    dependencies:
+      core-js: 2.6.12
+    dev: false
 
   /base/0.11.2:
     resolution: {integrity: sha512-5T6P4xPgpp0YDFvSWwEZ4NoE3aM4QBQXDzmVbraCkFj8zHM+mba8SyqB5DbZWyR7mYHo6Y7BdQo3MoA4m0TeQg==}
@@ -347,6 +403,12 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
+  /core-js/2.6.12:
+    resolution: {integrity: sha512-Kb2wC0fvsWfQrgk8HU5lW6U/Lcs8+9aaYcy4ZFc6DDlo4nZ7n70dEgE5rtR0oG6ufKDUnrwfWL1mXR5ljDatrQ==}
+    deprecated: core-js@<3.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Please, upgrade your dependencies to the actual version of core-js.
+    requiresBuild: true
+    dev: false
+
   /core-util-is/1.0.2:
     resolution: {integrity: sha1-tf1UIgqivFq1eqtxQMlAdUUDwac=}
     dev: true
@@ -520,6 +582,13 @@ packages:
       websocket-driver: 0.7.4
     dev: true
 
+  /file-selector/0.1.19:
+    resolution: {integrity: sha512-kCWw3+Aai8Uox+5tHCNgMFaUdgidxvMnLWO6fM5sZ0hA2wlHP5/DHGF0ECe84BiB95qdJbKNEJhWKVDvMN+JDQ==}
+    engines: {node: '>= 10'}
+    dependencies:
+      tslib: 2.2.0
+    dev: false
+
   /file-uri-to-path/1.0.0:
     resolution: {integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==}
     dev: true
@@ -547,6 +616,12 @@ packages:
       statuses: 1.5.0
       unpipe: 1.0.0
     dev: true
+
+  /focus-trap/6.2.2:
+    resolution: {integrity: sha512-qWovH9+LGoKqREvJaTCzJyO0hphQYGz+ap5Hc4NqXHNhZBdxCi5uBPPcaOUw66fHmzXLVwvETLvFgpwPILqKpg==}
+    dependencies:
+      tabbable: 5.2.0
+    dev: false
 
   /for-in/1.0.2:
     resolution: {integrity: sha1-gQaNKVqBQuwKxybG4iAMMPttXoA=}
@@ -1132,6 +1207,11 @@ packages:
       through: 2.3.8
     dev: true
 
+  /popper.js/1.16.1:
+    resolution: {integrity: sha512-Wb4p1J4zyFTbM+u6WuO4XstYx4Ky9Cewe4DWrel7B0w6VVICvPwdOpotjzcf6eD8TsckVnIMNONQyPIUFOUbCQ==}
+    deprecated: You can find the new Popper v2 at @popperjs/core, this package is dedicated to the legacy v1
+    dev: false
+
   /posix-character-classes/0.1.1:
     resolution: {integrity: sha1-AerA/jta9xoqbAL+q7jB/vfgDqs=}
     engines: {node: '>=0.10.0'}
@@ -1140,6 +1220,16 @@ packages:
   /process-nextick-args/2.0.1:
     resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}
     dev: true
+
+  /prop-types-extra/1.1.1_react@16.14.0:
+    resolution: {integrity: sha512-59+AHNnHYCdiC+vMwY52WmvP5dM3QLeoumYuEyceQDi9aEhtwN9zIQ2ZNo25sMyXnbh32h+P1ezDsUpUH3JAew==}
+    peerDependencies:
+      react: '>=0.14.0'
+    dependencies:
+      react: 16.14.0
+      react-is: 16.13.1
+      warning: 4.0.3
+    dev: false
 
   /prop-types/15.7.2:
     resolution: {integrity: sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==}
@@ -1169,6 +1259,19 @@ packages:
       prop-types: 15.7.2
       react: 16.14.0
       scheduler: 0.19.1
+    dev: false
+
+  /react-dropzone/9.0.0_react@16.14.0:
+    resolution: {integrity: sha512-wZ2o9B2qkdE3RumWhfyZT9swgJYJPeU5qHEcMU8weYpmLex1eeWX0CC32/Y0VutB+BBi2D+iePV/YZIiB4kZGw==}
+    engines: {node: '>= 6'}
+    peerDependencies:
+      react: '>=0.14.0'
+    dependencies:
+      attr-accept: 1.1.3
+      file-selector: 0.1.19
+      prop-types: 15.7.2
+      prop-types-extra: 1.1.1_react@16.14.0
+      react: 16.14.0
     dev: false
 
   /react-is/16.13.1:
@@ -1492,9 +1595,19 @@ packages:
       has-flag: 4.0.0
     dev: true
 
+  /tabbable/5.2.0:
+    resolution: {integrity: sha512-0uyt8wbP0P3T4rrsfYg/5Rg3cIJ8Shl1RJ54QMqYxm1TLdWqJD1u6+RQjr2Lor3wmfT7JRHkirIwy99ydBsyPg==}
+    dev: false
+
   /through/2.3.8:
     resolution: {integrity: sha1-DdTJ/6q8NXlgsbckEV1+Doai4fU=}
     dev: true
+
+  /tippy.js/5.1.2:
+    resolution: {integrity: sha512-Qtrv2wqbRbaKMUb6bWWBQWPayvcDKNrGlvihxtsyowhT7RLGEh1STWuy6EMXC6QLkfKPB2MLnf8W2mzql9VDAw==}
+    dependencies:
+      popper.js: 1.16.1
+    dev: false
 
   /to-object-path/0.3.0:
     resolution: {integrity: sha1-KXWIt7Dn4KwI4E5nL4XB9JmeF68=}
@@ -1531,9 +1644,17 @@ packages:
     hasBin: true
     dev: true
 
+  /tslib/1.13.0:
+    resolution: {integrity: sha512-i/6DQjL8Xf3be4K/E6Wgpekn5Qasl1usyw++dAA35Ue5orEn65VIxOA+YvNNl9HV3qv70T7CNwjODHZrLwvd1Q==}
+    dev: false
+
   /tslib/1.14.1:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
     dev: true
+
+  /tslib/2.2.0:
+    resolution: {integrity: sha512-gS9GVHRU+RGn5KQM2rllAlR3dU6m7AcpJKdtH8gFvQiC4Otgk98XnmMU+nZenHt/+VhnBPWwgrJsyrdcw6i23w==}
+    dev: false
 
   /type-fest/0.6.0:
     resolution: {integrity: sha512-q+MB8nYR1KDLrgr4G5yemftpMC7/QLqVndBmEEdqzmNj5dcFOO4Oo8qlwZE3ULT3+Zim1F8Kq4cBnikNhlCMlg==}
@@ -1607,6 +1728,12 @@ packages:
     resolution: {integrity: sha1-IpnwLG3tMNSllhsLn3RSShj2NPw=}
     engines: {node: '>= 0.8'}
     dev: true
+
+  /warning/4.0.3:
+    resolution: {integrity: sha512-rpJyN222KWIvHJ/F53XSZv0Zl/accqHR8et1kpaMTD/fLCRxtV8iX8czMzY7sVZupTI3zcUTg8eycS2kNF9l6w==}
+    dependencies:
+      loose-envify: 1.4.0
+    dev: false
 
   /websocket-driver/0.7.4:
     resolution: {integrity: sha512-b17KeDIQVjvb0ssuSDF2cYXSg2iztliJ4B9WdsuB6J952qCPKmnVq4DyW5motImXHDC1cBT/1UezrJVsKw5zjg==}
