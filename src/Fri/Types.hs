@@ -39,6 +39,8 @@ instance FromJSON User where
 
 type RegisterImpl m = UserName -> (Either Text PB.Repo -> m ()) -> m ()
 
+type SearchImpl m = Text -> (PB.Repo -> m ()) -> m ()
+
 data RepoInitial = RepoInitial
   { riName :: RepoName,
     riDescription :: Maybe RepoDescription

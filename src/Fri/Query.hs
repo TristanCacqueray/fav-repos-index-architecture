@@ -6,11 +6,12 @@
 module Fri.Query where
 
 import Control.Monad.Catch (MonadThrow)
-import Data.Aeson (ToJSON (..), object, (.=))
+import Data.Aeson (FromJSON, ToJSON (..), object, (.=))
 import Data.Aeson.Types (Pair)
 import Data.Time.Clock (getCurrentTime)
 import qualified Data.Vector as V
 import qualified Database.Bloodhound as BH
+import qualified Fri.Messages as PB
 import Fri.Types
 import Network.HTTP.Client (defaultManagerSettings, newManager)
 import Relude
@@ -62,6 +63,28 @@ addRepos repos = do
         (BH.DocId name)
         ( object ["description" .= riDesc desc]
         )
+
+-- | Helper search func that can be replaced by a scanSearch
+simpleSearch :: (FromJSON a, MonadThrow m, BH.MonadBH m) => BH.IndexName -> BH.Search -> m [BH.Hit a]
+simpleSearch indexName search = do
+  rawResp <- BH.searchByIndex indexName search
+  resp <- BH.parseEsResponse rawResp
+  case resp of
+    Left e -> error (show e)
+    Right x -> pure (BH.hits (BH.searchHits x))
+
+searchRepos :: (MonadThrow m, BH.MonadBH m) => Text -> m [PB.Repo]
+searchRepos txt = do
+  repos <- simpleSearch friIndex (BH.mkSearch (Just query) Nothing)
+  pure (map getRepos repos)
+  where
+    getRepos :: BH.Hit PB.Repo -> PB.Repo
+    getRepos hit =
+      let repo = fromMaybe (error "No source") (BH.hitSource hit)
+          (BH.DocId name) = BH.hitDocId hit
+       in repo {PB.repoName = toLazy name}
+    query :: BH.Query
+    query = BH.QueryQueryStringQuery . BH.mkQueryStringQuery $ BH.QueryString txt
 
 userIndex :: BH.IndexName
 userIndex = BH.IndexName "user.0"

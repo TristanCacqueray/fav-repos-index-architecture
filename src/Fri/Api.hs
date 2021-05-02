@@ -8,22 +8,22 @@ import Control.Monad.Catch (MonadThrow)
 import qualified Data.Vector as V
 import Fri.GitHub (getFavorites)
 import qualified Fri.Messages as PB
-import qualified Fri.Query as FQ
+import Fri.Query
 import Fri.RpcApi (runService)
 import Fri.Types
 import Relude
 import qualified Streaming.Prelude as S
 
-register :: (MonadThrow m, MonadIO m) => FQ.Client -> RegisterImpl m
+register :: (MonadThrow m, MonadIO m) => Client -> RegisterImpl m
 register client username sendResult = do
   -- Check if user already registered
-  userM <- FQ.runQuery client $ FQ.getUser username
+  userM <- runQuery client $ getUser username
   case userM of
     Just _user -> sendResult (Left "welcome back!")
     Nothing -> do
-      _ <- FQ.runQuery client $ FQ.createUser username
+      _ <- runQuery client $ createUser username
       initRepos <- S.toList_ userFavRepo
-      FQ.runQuery client (FQ.addRepos (V.fromList initRepos))
+      runQuery client (addRepos (V.fromList initRepos))
       mapM_ (sendResult . Right . toRepo) initRepos
       sendResult (Left "welcome!")
   where
@@ -36,8 +36,13 @@ register client username sendResult = do
         (toLazy . unDesc $ fromMaybe (RepoDescription "") desc)
         []
 
+search :: (MonadThrow m, MonadIO m) => Client -> SearchImpl m
+search client txt sendResult = do
+  res <- runQuery client $ searchRepos txt
+  mapM_ sendResult res
+
 run :: Int -> Text -> IO ()
 run port elk = do
-  elkClient <- FQ.newClient elk
+  elkClient <- newClient elk
   putTextLn $ "fri-api running on :" <> show port
-  runService port (register elkClient)
+  runService port (register elkClient) (search elkClient)

@@ -14,6 +14,9 @@ def run():
         req = Fri.RegisterRequest(username='TristanCacqueray')
         for resp in stub.Register(req):
             print(resp)
+
+        for resp in stub.Search(Fri.SearchRequest(query="haskell")):
+            print(resp)
     print("Done.")
 
 

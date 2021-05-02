@@ -31,15 +31,29 @@ registerHandler registerImpl (ServerWriterRequest _metadata (RegisterRequest use
 
       print resp
 
-runService :: Int -> RegisterImpl IO -> IO ()
-runService port registerImpl = do
+searchHandler ::
+  SearchImpl IO ->
+  ServerRequest 'ServerStreaming SearchRequest SearchResponse ->
+  IO (ServerResponse 'ServerStreaming SearchResponse)
+searchHandler registerImpl (ServerWriterRequest _metadata (SearchRequest txt) sendResponse) = do
+  putTextLn $ "GRPC: got search request: " <> toStrict txt
+  registerImpl (toStrict txt) cb
+  pure (ServerWriterResponse mempty StatusOk (StatusDetails "ok"))
+  where
+    cb res = do
+      resp <- sendResponse (SearchResponse 42 (Just res))
+
+      print resp
+
+runService :: Int -> RegisterImpl IO -> SearchImpl IO -> IO ()
+runService port registerImpl searchImpl = do
   serviceServer handlers (options {serverPort = Port port})
   where
     handlers :: Service ServerRequest ServerResponse
     handlers =
       Service
         { serviceRegister = registerHandler registerImpl,
-          serviceSearch = undefined
+          serviceSearch = searchHandler searchImpl
         }
     options :: ServiceOptions
     options = defaultServiceOptions
