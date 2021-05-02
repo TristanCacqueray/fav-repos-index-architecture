@@ -3,27 +3,35 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "bs-platform": "^9.0.2",
     "google-protobuf": "^3.12.2",
     "grpc-web": "^1.1.0",
     "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1"
+    "react-dom": "^16.13.1"
+  },
+  "devDependencies": {
+    "concurrently": "^6.0.2",
+    "esbuild": "^0.11.15",
+    "live-server": "^1.2.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "mkdir -p www/dist && pnpm run build && pnpm run live",
+    "live": "concurrently --names www,res,esb -c green.bold,red.bold,blue.bold pnpm:dev-server pnpm:re:watch pnpm:es:watch",
+    "build": "pnpm run clean && mkdir -p build && pnpm run re:build && pnpm run es:build -- --minify --define:process.env.NODE_ENV='\"production\"'",
+    "dev-server": "live-server --entry-file=index.html --host=localhost --port=3000 --quiet ./www/",
+    "es:build": "esbuild src/index.jsx --outfile=www/dist/bundle.js --bundle --sourcemap --target=chrome80,firefox72,safari13,edge80 --define:process.env.NODE_ENV='\"development\"'",
+    "es:clean": "rm -Rf ./build/",
+    "es:watch": "pnpm es:build -- --watch --color=true",
+    "re:build": "bsb -make-world",
+    "re:clean": "bsb -clean-world",
+    "re:watch": "NINJA_ANSI_FORCED=1 bsb -make-world -w",
+    "clean": "pnpm run re:clean && pnpm run es:clean"
   },
   "eslintConfig": {
     "extends": "react-app"
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
+    "production": [">0.2%", "not dead", "not op_mini all"],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",

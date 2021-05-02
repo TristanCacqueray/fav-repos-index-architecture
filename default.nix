@@ -155,6 +155,7 @@ in {
     ];
     propagatedBuildInputs = [
       pkgs.strace
+      pkgs.esbuild
       elk
       envoy
       python-grpc

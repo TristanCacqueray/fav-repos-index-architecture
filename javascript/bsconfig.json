@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/rescript-lang/rescript-compiler/master/docs/docson/build-schema.json",
+  "name": "fav-repos-index",
+  "version": "0.0.1",
+  "sources": {
+    "dir": "src",
+    "subdirs": true
+  },
+  "reason": { "react-jsx": 3 },
+  "package-specs": {
+    "module": "es6",
+    "in-source": true
+  },
+  "suffix": ".bs.js",
+  "bs-dependencies": [],
+  "warnings": {
+    "error": "+101"
+  }
+}
